@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HanapDormIndang | Admin Dashboard</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: url('./images/bg.png') no-repeat center center/cover;
+            background-attachment: fixed;
+            overflow: hidden;
+        }
+
+        .overlay {
+            width: 100%;
+            min-height: 100vh;
+            background: rgba(0, 0, 0, 0.55);
+            padding: 1.25rem 3rem 3rem;
+        }
+
+        /* ── Navbar ── */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: -1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+        }
+
+        .left-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .logo {
+            width: 5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 0.9rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 0.625rem;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #4fdcff;
+        }
+
+        .signin-top {
+            color: white;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.5rem 1.1rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            transition: 0.3s;
+        }
+
+        .signin-top:hover {
+            border: 1px solid #00d9ff;
+            box-shadow: 0 0 0.6rem rgba(0, 217, 255, 0.8), 0 0 1.2rem rgba(0, 217, 255, 0.5);
+            color: #4fdcff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ── Dashboard wrapper ── */
+        .dashboard-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.75rem 1.25rem 1rem;
+            color: white;
+        }
+
+        /* ── Logo name ── */
+        .logo-name {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .logo-name img {
+            width: 10rem;
+            filter: brightness(2.0);
+        }
+
+        /* ── Admin card outer shell ── */
+        .admin-card {
+            width: 100%;
+            max-width: 30rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 0 2rem rgba(0, 132, 255, 0.2), 0 0.625rem 1.875rem rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        /* ── Card Header ── */
+        .card-header {
+            border: 2px solid #1d4ed8;
+            border-radius: 1.2rem 1.2rem 0.5rem 0.5rem;
+            padding: 0.875rem;
+            text-align: center;
+            background: transparent;
+            backdrop-filter: blur(6px);
+        }
+
+        .card-header h2 {
+            font-size: 1.2rem;
+            margin: 0 0 0.5rem;
+            letter-spacing: 0.06em;
+            color: #fff;
+        }
+
+        .card-header p {
+            font-size: 0.8rem;
+            color: #cbd5e0;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* ── Card Body ── */
+        .card-body {
+            padding: 0 0.75rem 0.75rem;
+            border: 2px solid #1d4ed8;
+            border-radius: 0.5rem 0.5rem 1.2rem 1.2rem;
+            background: transparent;
+            backdrop-filter: blur(6px);
+        }
+
+        .listing-title {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #cbd5e0;
+            padding: 0.9rem 0;
+        }
+
+        /* ── Stats grid ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-top: 1px solid #1d4ed8;
+            border-bottom: 1px solid #1d4ed8;
+            margin-bottom: 1.25rem;
+        }
+
+        .grid-item {
+            padding: 0.7rem 0.625rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            border-bottom: 1px solid #1d4ed8;
+        }
+
+        .grid-item span {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .grid-item:nth-child(odd) {
+            border-right: 1px solid #1d4ed8;
+        }
+
+        .grid-item:nth-last-child(-n+2) {
+            border-bottom: none;
+        }
+
+        .highlights-link {
+            cursor: pointer;
+            color: #e2e8f0;
+        }
+
+        .highlights-link u {
+            color: #3b82f6;
+        }
+
+        /* ── Action controls ── */
+        .action-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0 0.625rem;
+        }
+
+        .action-btn {
+            border: none;
+            font-weight: bold;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            transition: opacity 0.2s, box-shadow 0.2s;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .action-btn:hover {
+            opacity: 0.88;
+        }
+
+        .blue-pill {
+            background: linear-gradient(90deg, #0055cc, #0084ff);
+            color: #ffffff;
+            box-shadow: 0 0 0.75rem rgba(0, 132, 255, 0.4);
+        }
+
+        .blue-pill:hover {
+            box-shadow: 0 0 1.2rem rgba(0, 132, 255, 0.7);
+        }
+
+        .btn-icons {
+            font-size: 0.9rem;
+            display: flex;
+            gap: 0.6rem;
+            opacity: 0.85;
+            align-items: center;
+        }
+
+        .application-link {
+            text-align: center;
+            margin: 0.25rem 0;
+        }
+
+        .application-link a {
+            color: #3b82f6;
+            font-size: 0.75rem;
+            text-decoration: underline;
+            font-weight: bold;
+            letter-spacing: 0.04em;
+            transition: color 0.2s;
+        }
+
+        .application-link a:hover {
+            color: #60a5fa;
+        }
+
+        .portal-btn {
+            background: linear-gradient(90deg, #1a3a9e, #1d4ed8);
+            color: #ffffff;
+            border-radius: 50px;
+            justify-content: center;
+            padding: 0.875rem 1.25rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            box-shadow: 0 0 1rem rgba(29, 78, 216, 0.5);
+            margin-bottom: 0.25rem;
+        }
+
+        .portal-btn:hover {
+            box-shadow: 0 0 1.5rem rgba(29, 78, 216, 0.8);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 480px) {
+            .overlay { padding: 1rem 1rem 2rem; }
+            .admin-card { max-width: 100%; }
+            .logo-name img { width: 9rem; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay">
+
+        <nav class="navbar">
+            <div class="left-nav">
+                <img src="images/logo.png" alt="Logo" class="logo">
+                <ul class="nav-links">
+                    <li><a href="homepage.html">Home</a></li>
+                    <li><a href="listings.html">Listings</a></li>
+                </ul>
+            </div>
+            <a href="register.html" class="signin-top">Sign Out</a>
+        </nav>
+
+        <main class="dashboard-wrapper">
+
+            <div class="logo-name">
+                <img src="images/logo.png" alt="Hanap Dorm Indang">
+            </div>
+
+            <div class="admin-card">
+
+                <div class="card-header">
+                    <h2>ADMIN DASHBOARD</h2>
+                    <p>Manage your properties, application and bookings near CvSU - Main Campus</p>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="listing-title">
+                        Listing management: <strong>16/24 Donum Dei residence</strong>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="grid-item">Total Beds: <span>35</span></div>
+                        <div class="grid-item highlights-link">Total Rooms: <u><span>8</span></u></div>
+                        <div class="grid-item">Available Beds: <span>3</span></div>
+                        <div class="grid-item">Available Rooms: <span>3</span></div>
+                    </div>
+
+                    <div class="action-controls">
+
+                        <button class="action-btn blue-pill">
+                            <span>CHANGE PASSWORD</span>
+                            <span class="btn-icons">
+                                <i class="fa-solid fa-eye-slash"></i>
+                                <i class="fa-solid fa-pen"></i>
+                            </span>
+                        </button>
+
+                        <button class="action-btn blue-pill">
+                            <span>EDIT DORM DETAILS</span>
+                            <span class="btn-icons">
+                                <i class="fa-solid fa-image"></i>
+                            </span>
+                        </button>
+
+                        <div class="application-link">
+                            <a href="#">STUDENT APPLICATION: 67 (10 APPROVED)</a>
+                        </div>
+
+                        <button class="action-btn portal-btn">
+                            MANAGE APPLICANT PORTAL &amp; REVIEW PROFILES
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>
