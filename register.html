@@ -14,28 +14,102 @@
             font-family:Arial, sans-serif;
         }
 
-        body{
-            height:100vh;
-            background: url('./images/bg.png') no-repeat center center/cover;
-            overflow:hidden;
+        body {
+            min-height: 100vh;
+            background: url('./images/bg.png') no-repeat center center fixed;
+            background-size: cover;
+            overflow-y: auto;
+        }
+
+        .overlay{
+            width:100%;
+            min-height:100vh;
+            background:rgba(0,0,0,0.55);
+            padding:20px 50px;
+        }
+
+        .navbar{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-top:-20px;
+            padding:0 50px 8px 50px;
+            border-bottom:1px solid rgba(255,255,255,0.25);
+            margin-left:-50px;
+            margin-right:-50px;
+            position:sticky;
+            top:0;
+            z-index:1000;
+            backdrop-filter:blur(12px);
+        }
+
+        .left-nav{
+            display:flex;
+            align-items:center;
+            gap:5px;
+        }
+
+        .logo {
+            width: 5rem;
+        }
+
+        .nav-links{
+            display:flex;
+            list-style:none;
+            gap:14px;
+        }
+
+        .nav-links a{
+            color:white;
+            text-decoration:none;
+            font-size:13px;
+            padding:7px 14px;
+            border-radius:10px;
+            transition:0.3s;
+        }
+
+        .nav-links a:hover{
+            color:#4fdcff;
+            transition:0.5s;
+        }
+
+        .signin-top{
+            color:white;
+            text-decoration:none;
+            font-size:13px;
+            padding:8px 18px;
+            border-radius:12px;
+            border:1px solid rgba(255,255,255,0.2);
+            background:rgba(255,255,255,0.05);
+            transition:0.3s;
+        }
+
+        .signin-top:hover{
+            border:1px solid #00d9ff;
+            box-shadow:
+            0 0 10px rgba(0,217,255,0.8),
+            0 0 20px rgba(0,217,255,0.5);
+            color:#4fdcff;
+            background:rgba(255,255,255,0.08);
         }
 
         .page{
             width:100%;
+            min-height:calc(100vh - 90px);
             display:flex;
             flex-direction:column;
             align-items:center;
-            justify-content:flex-start;
-            padding-top:25px;
+            justify-content:center;
+            padding:20px;
         }
 
         .page-title{
             text-align:center;
             color:white;
-            font-size:34px;
+            font-size:42px;
             font-weight:bold;
             line-height:1.1;
-            margin-bottom:18px;
+            margin-bottom:25px;
             text-shadow:0 0 10px rgba(255,255,255,0.2);
         }
 
@@ -43,12 +117,12 @@
             width:340px;
             padding:30px 26px;
             border-radius:22px;
-            background:rgba(10,15,35,0.78);
+            background:rgba(20,20,20,0.35);
             backdrop-filter:blur(10px);
-            border:1px solid rgba(255,255,255,0.18);
+            border:1px solid rgba(255,255,255,0.2);
             box-shadow:
-            0 0 12px rgba(255,255,255,0.12),
-            0 0 30px rgba(255,255,255,0.06);
+            0 0 10px rgba(255,255,255,0.15),
+            0 0 25px rgba(255,255,255,0.08);
         }
 
         .form-group{
@@ -84,6 +158,40 @@
             box-shadow:
             0 0 8px rgba(0,217,255,0.7),
             0 0 15px rgba(0,217,255,0.4);
+        }
+
+        .role-select{
+            display:flex;
+            gap:12px;
+            margin-top:8px;
+        }
+
+        .role-option{
+            flex:1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            padding:12px;
+            border-radius:14px;
+            border:2px solid rgba(255,255,255,0.15);
+            background:rgba(255,255,255,0.06);
+            color:white;
+            cursor:pointer;
+            transition:0.3s;
+            font-size:14px;
+        }
+
+        .role-option input{
+            width:auto;
+            cursor:pointer;
+        }
+
+        .role-option:hover{
+            border-color:#00d9ff;
+            box-shadow:
+            0 0 8px rgba(0,217,255,0.5),
+            0 0 15px rgba(0,217,255,0.2);
         }
 
         .btn{
@@ -128,44 +236,84 @@
 
 <body>
 
-    <div class="page">
-        <h1 class="page-title">
-            Create Your<br>
-            HanapDormIndang<br>
-            Account
-        </h1>
+    <div class="overlay">
 
-        <section class="card">
-            <form>
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" placeholder="Full Name" required>
-                </div>
+        <nav class="navbar">
+            <div class="left-nav">
+                <img src="./images/logo.png" alt="Logo" class="logo">
 
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" placeholder="example@gmail.com" required>
-                </div>
+                <ul class="nav-links">
+                    <li><a href="homepage.html">Home</a></li>
+                    <li><a href="listings.html">Listings</a></li>
+                </ul>
+            </div>
 
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" placeholder="Create password" required>
-                </div>
+            <a href="login.html" class="signin-top">Sign In</a>
+        </nav>
 
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" placeholder="Confirm password" required>
-                </div>
+        <div class="page">
+            <h1 class="page-title">
+                Create Your<br>
+                HanapDormIndang<br>
+                Account
+            </h1>
 
-                <button class="btn" type="submit">Create Account</button>
-            </form>
+            <section class="card">
+                <form>
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" placeholder="First name" required>
+                    </div>
 
-            <p class="extra">
-                Already have an account?
-                <a href="login.html">Sign In</a>
-            </p>
-        </section>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" placeholder="Last name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>I am a</label>
+
+                        <div class="role-select">
+
+                            <label class="role-option">
+                                <input type="radio" name="role">
+                                <span>Student</span>
+                            </label>
+
+                            <label class="role-option">
+                                <input type="radio" name="role">
+                                <span>Dorm Owner</span>
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" placeholder="example@gmail.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" placeholder="Create password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" placeholder="Repeat password" required>
+                    </div>
+
+                    <button class="btn" type="submit">
+                        Create Account
+                    </button>
+                </form>
+
+                <p class="extra">
+                    Already have an account?
+                    <a href="login.html">Sign In</a>
+                </p>
+            </section>
+        </div>
     </div>
-
 </body>
 </html>

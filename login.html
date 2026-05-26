@@ -32,8 +32,10 @@
         justify-content:space-between;
         align-items:center;
         margin-top:-18px;
-        padding-bottom:8px;
-        border-bottom:1px solid rgba(255,255,255,0.35);
+        padding:0 50px 8px 50px;
+        border-bottom:1px solid rgba(255,255,255,0.25);
+        margin-left:-50px;
+        margin-right:-50px;
     }
 
     .left-nav{
@@ -42,8 +44,8 @@
         gap:5px;
     }
 
-    .logo{
-        width:120px;
+    .logo {
+        width: 5rem;
     }
 
     .nav-links{
@@ -91,8 +93,9 @@
     .login-wrapper{
         display:flex;
         flex-direction:column;
+        justify-content:center;
         align-items:center;
-        margin-top:10px;
+        min-height:calc(100vh - 90px);
         color:white;
     }
 
@@ -160,6 +163,10 @@
         margin-bottom:20px;
         font-size:13px;
         color:white;
+    }
+
+    .options input[type="checkbox"]{
+        cursor:pointer;
     }
 
     .options a{
