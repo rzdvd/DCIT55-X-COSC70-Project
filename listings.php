@@ -1,0 +1,904 @@
+<?php
+session_start();
+include ("./database/database.php");
+
+$sql = $conn->prepare("SELECT * FROM dorms WHERE available_rooms > 0");
+$sql->execute();
+$result = $sql->get_result();
+
+$dorms = [];
+while ($row = $result->fetch_assoc()) {
+    $dorms[] = $row;
+}
+
+$sql = $conn->prepare("SELECT * FROM dorm_amenities INNER JOIN amenities ON dorm_amenities.amenity_id = amenities.amenity_id");
+$sql->execute();
+$result = $sql->get_result();
+
+$dormAmenities = [];
+while ($row = $result->fetch_assoc()) {
+    $dormAmenities[] = $row;
+}
+
+// Check if user is logged in
+$isLoggedIn = isset($_SESSION['user_id']);
+$userName = isset($_SESSION['first_name']) ? $_SESSION['first_name'] : 'User';
+$userProfilePic = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : './images/default-profile.png';
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HanapDormIndang | Listings</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: url('./images/bg.png') no-repeat center center/cover;
+      background-attachment: fixed;
+    }
+
+    .overlay {
+      width: 100%;
+      min-height: 100vh;
+      background: rgba(0, 0, 0, 0.55);
+      padding: 1.25rem 3rem 3rem;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+
+    .navbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:-20px;
+      padding:0 50px 8px 50px;
+      border-bottom:1px solid rgba(255,255,255,0.25);
+      margin-left:-50px;
+      margin-right:-50px;
+      position:sticky;
+      top:0;
+      z-index:1000;
+      backdrop-filter:blur(12px);
+    }
+
+    .left-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .logo { width: 5rem; }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 0.9rem;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 0.625rem;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover { color: #4fdcff; }
+    .nav-links a.active { color: #4fdcff; }
+
+    .signin-top {
+      color: white;
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      transition: 0.3s;
+    }
+
+    .signin-top:hover {
+      border: 1px solid #00d9ff;
+      box-shadow: 0 0 0.6rem rgba(0, 217, 255, 0.8), 0 0 1.2rem rgba(0, 217, 255, 0.5);
+      color: #4fdcff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .profile-pic {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      object-fit: cover;
+      transition: all 0.3s;
+    }
+
+    .profile-pic:hover {
+      border-color: #4fdcff;
+      box-shadow: 0 0 0.6rem rgba(79, 220, 255, 0.6);
+    }
+
+    .profile-name {
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .profile-menu {
+      display: none;
+      position: absolute;
+      top: 2.8rem;
+      right: 0;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(0, 188, 212, 0.3);
+      border-radius: 0.5rem;
+      min-width: 150px;
+      z-index: 1001;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .profile-menu.active {
+      display: block;
+    }
+
+    .profile-menu a,
+    .profile-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.6rem 1rem;
+      color: #cbd5e0;
+      text-decoration: none;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .profile-menu a:hover,
+    .profile-menu button:hover {
+      background: rgba(0, 188, 212, 0.15);
+      color: #4fdcff;
+    }
+
+    .profile-menu a:last-child,
+    .profile-menu button:last-child {
+      border-bottom: none;
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: center;
+      padding: 1.5rem 0 0.75rem;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background-color: rgba(17, 26, 36, 0.25);
+      border: 2px solid #4a4d53;
+      border-radius: 50px;
+      padding: 0.35rem 0.35rem 0.35rem 1.2rem;
+      width: 55%;
+      max-width: 100%;
+    }
+
+    .input-section {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
+    .location-section {
+      border-left: 1px solid #2e3846;
+      padding-left: 0.9rem;
+    }
+
+    /* Target stylesheet icons explicitly */
+    .search-bar i {
+      color: #5c6b73;
+      margin-right: 0.6rem;
+      font-size: 0.9rem;
+    }
+
+    .tip-icon {
+      color: #4fdcff;
+      font-size: 0.6rem;
+      margin-top: 0.1rem;
+    }
+
+    .detail-icon-img {
+      color: #a0aec0;
+      font-size: 0.9rem;
+    }
+
+    .btn-icon {
+      margin-right: 0.3rem;
+      font-size: 0.85rem;
+    }
+
+    .search-bar input {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      font-size: 0.9rem;
+      width: 100%;
+      outline: none;
+    }
+
+    .search-bar input::placeholder { color: #5c6b73; }
+
+    .find-btn {
+      background: linear-gradient(135deg, #1fa8df 0%, #ffffff 100%);
+      color: #000000;
+      border: none;
+      font-weight: bold;
+      font-size: 0.85rem;
+      padding: 0.6em 1.4em;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 1.2rem rgba(31, 168, 223, 0.6), 0 0 2.5rem rgba(31, 168, 223, 0.3);
+      white-space: nowrap;
+    }
+
+    .find-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 1.5rem rgba(31, 168, 223, 0.8), 0 0 3rem rgba(31, 168, 223, 0.5);
+    }
+
+    .tip-bar {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      background: rgba(0, 180, 220, 0.08);
+      border: 1px solid rgba(0, 180, 220, 0.25);
+      border-radius: 0.625rem;
+      padding: 0.5rem 1rem;
+      margin: 0 auto 0.75rem;
+      width: 55%;
+      font-size: 0.6rem;
+      color: #a0c8d8;
+      line-height: 1.4;
+    }
+
+    .tip-bar .tip-label {
+      font-weight: bold;
+      color: #4fdcff;
+      white-space: nowrap;
+    }
+
+    .filter-tags {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .tag {
+      background: transparent;
+      border: 1px solid #4a5568;
+      color: #cbd5e0;
+      padding: 0.35rem 1rem;
+      border-radius: 1.25rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .tag:hover { border-color: #4fdcff; color: #4fdcff; }
+
+    .tag.active {
+      background: rgba(0, 188, 212, 0.15);
+      border-color: #00bcd4;
+      color: #4fdcff;
+    }
+
+    .results-meta {
+      margin-bottom: 0.75rem;
+      color: #fff;
+    }
+
+    .results-meta h1 { font-size: 1.15rem; margin-bottom: 0.3rem; }
+
+    .results-meta p { font-size: 0.8rem; color: #a0aec0; }
+
+    .results-meta .link {
+      color: #3b82f6;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    #map {
+        height: 350px;
+        width: 100%;
+        margin-bottom: 1.25rem;
+        border-radius: 25px
+    }
+
+    .content-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 1.25rem;
+      min-height: auto;
+      margin-bottom: 1rem;
+    }
+
+    .cards-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+      padding-right: 0.3rem;
+      max-height: 600px;
+    }
+
+    .cards-feed::-webkit-scrollbar { width: 0.3rem; }
+    .cards-feed::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 0.25rem; }
+
+    .dorm-card {
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease-in-out;
+      color: #fff;
+    }
+
+    .dorm-card:hover {
+      border-color: rgba(0, 188, 212, 0.4);
+      background: rgba(30, 41, 59, 0.6);
+    }
+
+    .dorm-card.active {
+      border-color: #00bcd4;
+      box-shadow: 0 0 0.9rem rgba(0, 188, 212, 0.2);
+      background: rgba(0, 188, 212, 0.06);
+    }
+
+    .dorm-card h3 { font-size: 0.95rem; margin: 0 0 0.4rem; }
+
+    .dorm-card .location { font-size: 0.78rem; color: #a0aec0; margin: 0 0 0.6rem; }
+
+    .dorm-card .unit-type { font-size: 0.75rem; color: #cbd5e0; display: block; margin-bottom: 0.4rem; }
+
+    .view-tag {
+      display: inline-block;
+      background: rgba(0, 188, 212, 0.15);
+      border: 1px solid rgba(0, 188, 212, 0.3);
+      color: #4fdcff;
+      font-size: 0.68rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.75rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 1.25rem;
+      font-size: 0.7rem;
+      font-weight: bold;
+    }
+
+    .status-badge.immediate { background: rgba(56, 161, 105, 0.2); color: #38a169; }
+    .status-badge.next-month { background: rgba(221, 107, 32, 0.2); color: #dd6b20; }
+    .status-badge.available { background: rgba(56, 161, 105, 0.2); color: #38a169; }
+
+    .details-panel {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      color: #fff;
+      overflow-y: auto;
+      max-height: 600px;
+    }
+
+    .details-panel::-webkit-scrollbar { width: 0.3rem; }
+    .details-panel::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 0.25rem; }
+
+    .panel-block {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .panel-block:last-child { border: none; margin-bottom: 0; }
+
+    .panel-block h2 { font-size: 1rem; margin-bottom: 0.4rem; }
+
+    .panel-block h3 { font-size: 0.9rem; margin-bottom: 0.6rem; color: #e2e8f0; }
+
+    .sub-facility {
+      font-size: 0.8rem;
+      color: #a0aec0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .price-range { font-size: 0.8rem; color: #cbd5e0; margin-top: 0.4rem; }
+
+    .cta-buttons {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: #ffffff;
+      color: #000;
+      border: none;
+      font-weight: bold;
+      font-size: 0.78rem;
+      padding: 0.5rem 1rem;
+      border-radius: 1.25rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .btn-primary.glow-effect { box-shadow: 0 0 0.9rem rgba(0, 188, 212, 0.6); }
+    .btn-primary:hover { opacity: 0.88; }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 0.78rem;
+      padding: 0.5rem 1rem;
+      border-radius: 1.25rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.14); }
+
+    .detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.8rem;
+      color: #cbd5e0;
+    }
+
+    .detail-row .detail-label { font-size: 0.7rem; color: #a0aec0; display: block; }
+
+    .scroll-text { font-size: 0.8rem; line-height: 1.6; color: #cbd5e0; }
+    .scroll-text p { margin-bottom: 0.5rem; }
+    .scroll-text ul { padding-left: 1.2rem; margin-bottom: 0.5rem; }
+    .scroll-text li { margin-bottom: 0.25rem; }
+    .scroll-text a { color: #3b82f6; text-decoration: underline; }
+    .scroll-text strong { color: #e2e8f0; }
+    .scroll-text .section-label { font-weight: bold; color: #e2e8f0; margin-top: 0.5rem; display: block; }
+
+    @media (max-width: 768px) {
+      .overlay { padding: 1rem 1rem 2rem; }
+      .search-bar, .tip-bar { width: 90%; }
+      .content-layout { grid-template-columns: 1fr; height: auto; }
+      .details-panel { max-height: 60vh; }
+    }
+
+    @media (max-width: 480px) {
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="overlay">
+    <nav class="navbar">
+      <div class="left-nav">
+        <img src="images/logo.png" alt="Logo" class="logo">
+        <ul class="nav-links">
+          <li><a href="homepage.html">Home</a></li>
+          <li><a href="listings.html" class="active">Listings</a></li>
+        </ul>
+      </div>
+      <?php if ($isLoggedIn): ?>
+        <div class="profile-section" id="profileToggle">
+          <img src="<?php echo htmlspecialchars($userProfilePic); ?>" alt="Profile" class="profile-pic" />
+          <span class="profile-name"><?php echo htmlspecialchars($userName); ?></span>
+          <div class="profile-menu" id="profileMenu">
+            <a href="profile.html">My Profile</a>
+            <a href="bookings.html">My Bookings</a>
+            <a href="favorites.html">Favorites</a>
+            <button onclick="logout()">Logout</button>
+          </div>
+        </div>
+      <?php else: ?>
+        <a href="login.html" class="signin-top">Sign In</a>
+      <?php endif; ?>
+    </nav>
+
+    <div class="search-container">
+      <div class="search-bar">
+        <div class="input-section">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchDormName" placeholder="find dorms" />
+        </div>
+        <div class="input-section location-section">
+          <i class="fa-solid fa-location-dot"></i>
+          <input type="text" id="searchLocation" placeholder="location" />
+        </div>
+        <button class="find-btn" id="findBtn">Find Dorms</button>
+      </div>
+    </div>
+
+    <div class="tip-bar">
+      <i class="fa-solid fa-circle-info tip-icon"></i>
+      <span class="tip-label">Tip:</span>
+      <span>Specify your preferred dorm type (Solo, Shared) for better results. Local Government-equivalent rules for student housing apply.</span>
+    </div>
+
+    <div class="filter-tags">
+      <button class="tag" data-filter="aircon">Aircon</button>
+      <button class="tag" data-filter="parking">Parking</button>
+      <button class="tag" data-filter="solo">Solo</button>
+      <button class="tag" data-filter="shared">Shared</button>
+      <button class="tag" data-filter="wifi">Wifi</button>
+    </div>
+
+    <div class="results-meta">
+      <h1 id="resultsTitle">Find your next perfect dorm in Indang, Cavite</h1>
+      <p><span id="resultCount">0</span> dorms found | Sort by: <span>relevance</span> - <span class="link">price</span></p>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="content-layout">
+
+      <section class="cards-feed" id="dormCardsFeed">
+        <!-- Dorm cards will be dynamically populated here -->
+      </section>
+
+      <section class="details-panel">
+
+        <div class="panel-block header-block">
+          <h2>Standard Solo/Shared Room (Greenview Residences)</h2>
+          <p class="sub-facility">
+            <i class="fa-solid fa-house detail-icon-img"></i>
+            <span>Greenview Residences</span>
+          </p>
+          <span class="status-badge available">Available</span>
+          <p class="price-range">PHP 2,500 - PHP 6,000 a month (excluding utilities)</p>
+          <div class="cta-buttons">
+            <button class="btn-primary glow-effect">Apply for Reservation</button>
+            <button class="btn-secondary">Requirements</button>
+            <button class="btn-secondary">
+              <i class="fa-solid fa-envelope btn-icon"></i> Contact Landlord
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-block specs-block">
+          <h3>Dorm Details</h3>
+          <div class="detail-row">
+            <i class="fa-solid fa-house detail-icon-img"></i>
+            <div>
+              <span class="detail-label">Rent</span>
+              <span class="rent-text">PHP 2,500 - PHP 6,000 a month (Deposit and Advance required)</span>
+            </div>
+          </div>
+          <div class="detail-row">
+            <i class="fa-solid fa-house detail-icon-img"></i>
+            <div>
+              <span class="detail-label">Dorm Type</span>
+              <span class="type-text">Solo and Shared options</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-block description-block">
+          <h3>Full Description</h3>
+          <div class="scroll-text">
+            <p>Please apply for a slot here: <a href="#">https://greenview-indang.com/reserve-now</a></p>
+            <p>Looking for a quiet, study-friendly environment in the heart of Indang? Our dormitory is specifically designed for students and young professionals. Located just 5 minutes away from the CvSU Main Campus, we offer a secure and breezy atmosphere. We value cleanliness and a peaceful community. You'll have the freedom to decorate your space, provided no permanent wall drills!</p>
+            <p>Please attach a copy of your Certificate of Registration (COR) or Proof of Employment, thanks!</p>
+            <span class="section-label">Requirements:</span>
+            <ul>
+              <li>Stay requirements: Minimum 1-year contract (2 months deposit, 1 month advance)</li>
+              <li>Must be tidy: Periodic room inspections are conducted</li>
+              <li>Curfew: Gate closes at 10:00 PM (Strictly enforced unless with a permit)</li>
+            </ul>
+            <span class="section-label">Language:</span>
+            <ul><li>English</li><li>Tagalog</li></ul>
+            <span class="section-label">Work Location:</span>
+            <ul><li>Poblacion III, Indang, Cavite, near the Municipal Hall and major banks.</li></ul>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    // Profile menu toggle
+    const profileToggle = document.getElementById('profileToggle');
+    const profileMenu = document.getElementById('profileMenu');
+
+    if (profileToggle) {
+      profileToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        profileMenu.classList.toggle('active');
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!profileToggle.contains(e.target)) {
+          profileMenu.classList.remove('active');
+        }
+      });
+    }
+
+    function logout() {
+      fetch('./logout.php', { method: 'POST' })
+        .then(() => {
+          window.location.href = 'listings.html';
+        });
+    }
+
+     var map = L.map("map").setView([14.1966, 120.88229], 16);
+
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution:
+          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(map);
+
+    const markerLayer = L.layerGroup().addTo(map);
+
+    const dormData = <?php echo json_encode($dorms); ?>;
+    const dormAmenitiesData = <?php echo json_encode($dormAmenities); ?>;
+    let filteredDorms = [...dormData];
+    let selectedFilters = {
+      amenities: [],
+      roomType: []
+    };
+
+    // Build amenities map for quick lookup
+    const amenitiesByDorm = {};
+    dormAmenitiesData.forEach(item => {
+      if (!amenitiesByDorm[item.dorm_id]) {
+        amenitiesByDorm[item.dorm_id] = [];
+      }
+      amenitiesByDorm[item.dorm_id].push(item.amenity_name.toLowerCase());
+    });
+
+    // Initialize
+    renderDormCards(dormData);
+    renderMarkers(dormData);
+    updateResultCount();
+
+    // Render dorm cards
+    function renderDormCards(dorms) {
+      const feed = document.getElementById('dormCardsFeed');
+      feed.innerHTML = '';
+
+      if (dorms.length === 0) {
+        feed.innerHTML = '<div style="color: #a0aec0; padding: 2rem; text-align: center;">No dorms match your search criteria.</div>';
+        return;
+      }
+
+      dorms.forEach((dorm, index) => {
+        const card = document.createElement('div');
+        card.className = `dorm-card ${index === 0 ? 'active' : ''}`;
+        card.dataset.index = index;
+        card.dataset.dormId = dorm.dorm_id;
+
+        const amenities = amenitiesByDorm[dorm.dorm_id] || [];
+        const roomType = dorm.room_type ? dorm.room_type.toLowerCase() : 'solo';
+        
+        card.innerHTML = `
+          ${amenities.includes('parking') ? '<span class="view-tag">Has Parking</span>' : ''}
+          <h3>${dorm.dorm_name}</h3>
+          <p class="location">${dorm.address}</p>
+          <span class="unit-type">${roomType.charAt(0).toUpperCase() + roomType.slice(1)} Units</span>
+          <span class="status-badge immediate">Immediate Avail</span>
+        `;
+
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.dorm-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          updatePanel(dorm);
+        });
+
+        feed.appendChild(card);
+      });
+
+      // Update first card panel
+      if (dorms.length > 0) {
+        updatePanel(dorms[0]);
+      }
+    }
+
+    // Update details panel
+    function updatePanel(dorm) {
+      document.querySelector('.panel-block.header-block h2').textContent = dorm.dorm_name;
+      document.querySelector('.sub-facility').innerHTML =
+        `<i class="fa-solid fa-house detail-icon-img"></i> <span>${dorm.address}</span>`;
+      document.querySelector('.price-range').textContent = `PHP ${dorm.monthly_rent} a month`;
+      document.querySelector('.rent-text').textContent = `PHP ${dorm.monthly_rent} a month (Deposit and Advance required)`;
+      
+      const amenities = amenitiesByDorm[dorm.dorm_id] || [];
+      document.querySelector('.type-text').textContent = dorm.room_type || 'Solo and Shared';
+      
+      const amenitiesList = amenities.length > 0 ? `<strong>Amenities:</strong> ${amenities.join(', ')}<br>` : '';
+      document.querySelector('.scroll-text').innerHTML = `
+        ${amenitiesList}
+        <p>${dorm.description || 'Contact landlord for more information.'}</p>
+        <span class="section-label">Rent:</span>
+        <p>PHP ${dorm.monthly_rent} a month</p>
+        <span class="section-label">Room Type:</span>
+        <p>${dorm.room_type || 'Various'}</p>
+      `;
+    }
+
+    // Filter and search
+    function applyFilters() {
+      const searchDorm = document.getElementById('searchDormName').value.toLowerCase();
+      const searchLocation = document.getElementById('searchLocation').value.toLowerCase();
+      const activeAmenities = selectedFilters.amenities;
+      const activeRoomTypes = selectedFilters.roomType;
+
+      filteredDorms = dormData.filter(dorm => {
+        // Search filter - if field is empty, don't filter by it; if has value, must match
+        const matchesDormName = dorm.dorm_name.toLowerCase().includes(searchDorm);
+        const matchesLocation = dorm.address.toLowerCase().includes(searchLocation);
+        const matchesSearch = (searchDorm === '' || matchesDormName) && (searchLocation === '' || matchesLocation);
+        
+        if (!matchesSearch) return false;
+
+        // Amenities filter
+        if (activeAmenities.length > 0) {
+          const dormAmenities = amenitiesByDorm[dorm.dorm_id] || [];
+          const hasAllAmenities = activeAmenities.every(amenity => dormAmenities.includes(amenity));
+          if (!hasAllAmenities) return false;
+        }
+
+        // Room type filter
+        if (activeRoomTypes.length > 0) {
+          const roomType = dorm.room_type ? dorm.room_type.toLowerCase() : 'solo';
+          if (!activeRoomTypes.includes(roomType)) return false;
+        }
+
+        return true;
+      });
+
+      renderDormCards(filteredDorms);
+      renderMarkers(filteredDorms);
+      updateResultCount();
+    }
+
+    // Update result count
+    function updateResultCount() {
+      document.getElementById('resultCount').textContent = filteredDorms.length;
+    }
+
+    // Event listeners for search inputs
+    document.getElementById('searchDormName').addEventListener('input', applyFilters);
+    document.getElementById('searchLocation').addEventListener('input', applyFilters);
+    document.getElementById('findBtn').addEventListener('click', applyFilters);
+
+    // Event listeners for filter tags
+    document.querySelectorAll('.tag').forEach(tag => {
+      tag.addEventListener('click', function() {
+        this.classList.toggle('active');
+        const filter = this.dataset.filter;
+        
+        if (filter === 'aircon') {
+          const index = selectedFilters.amenities.indexOf('aircon');
+          if (index > -1) {
+            selectedFilters.amenities.splice(index, 1);
+          } else {
+            selectedFilters.amenities.push('aircon');
+          }
+        } else if (filter === 'parking') {
+          const index = selectedFilters.amenities.indexOf('parking');
+          if (index > -1) {
+            selectedFilters.amenities.splice(index, 1);
+          } else {
+            selectedFilters.amenities.push('parking');
+          }
+        } else if (filter === 'solo') {
+          const index = selectedFilters.roomType.indexOf('solo');
+          if (index > -1) {
+            selectedFilters.roomType.splice(index, 1);
+          } else {
+            selectedFilters.roomType.push('solo');
+          }
+        } else if (filter === 'shared') {
+          const index = selectedFilters.roomType.indexOf('shared');
+          if (index > -1) {
+            selectedFilters.roomType.splice(index, 1);
+          } else {
+            selectedFilters.roomType.push('shared');
+          }
+        } else if (filter === 'wifi') {
+          const index = selectedFilters.amenities.indexOf('wifi');
+          if (index > -1) {
+            selectedFilters.amenities.splice(index, 1);
+          } else {
+            selectedFilters.amenities.push('wifi');
+          }
+        }
+        
+        applyFilters();
+      });
+    });
+    
+    function clearMarkers() {
+      markerLayer.clearLayers();
+    }
+
+    function renderMarkers(dorms) {
+      clearMarkers();
+      dorms.forEach(dorm => {
+        if (dorm.latitude && dorm.longitude) {
+          const marker = L.marker([dorm.latitude, dorm.longitude]);
+          marker.bindPopup(`<b>${dorm.dorm_name}</b><br>${dorm.address}`);
+          marker.on('click', function() {
+            const card = document.querySelector(`.dorm-card[data-dorm-id="${dorm.dorm_id}"]`);
+            if (card) {
+              card.click();
+            }
+          });
+          markerLayer.addLayer(marker);
+        }
+      });
+
+      if (markerLayer.getLayers().length > 0) {
+        map.fitBounds(markerLayer.getBounds().pad(0.1));
+      }
+    }
+  </script>
+</body>
+</html>
