@@ -27,7 +27,7 @@ CREATE TABLE `amenities` (
   `amenity_name` varchar(100) NOT NULL,
   PRIMARY KEY (`amenity_id`),
   UNIQUE KEY `amenity_name` (`amenity_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -36,6 +36,7 @@ CREATE TABLE `amenities` (
 
 LOCK TABLES `amenities` WRITE;
 /*!40000 ALTER TABLE `amenities` DISABLE KEYS */;
+INSERT INTO `amenities` VALUES (1,'Aircon'),(2,'Parking'),(4,'Shared'),(3,'Solo'),(5,'Wifi');
 /*!40000 ALTER TABLE `amenities` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -91,6 +92,7 @@ CREATE TABLE `dorm_amenities` (
 
 LOCK TABLES `dorm_amenities` WRITE;
 /*!40000 ALTER TABLE `dorm_amenities` DISABLE KEYS */;
+INSERT INTO `dorm_amenities` VALUES (1,1),(1,4),(1,5),(2,2),(2,3),(2,5),(3,1),(3,2),(3,3),(4,1),(4,3);
 /*!40000 ALTER TABLE `dorm_amenities` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -144,7 +146,7 @@ CREATE TABLE `dorms` (
   PRIMARY KEY (`dorm_id`),
   KEY `owner_id` (`owner_id`),
   CONSTRAINT `dorms_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,6 +155,7 @@ CREATE TABLE `dorms` (
 
 LOCK TABLES `dorms` WRITE;
 /*!40000 ALTER TABLE `dorms` DISABLE KEYS */;
+INSERT INTO `dorms` VALUES (1,1,'Greenview Residences','<p>Please apply for a slot here: <a href=\"#\">https://greenview-indang.com/reserve-now</a></p>\n          <p>Looking for a quiet, study-friendly environment in the heart of Indang? Located just 5 minutes from CvSU Main Campus.</p>\n          <span class=\"section-label\">Requirements:</span>\n          <ul><li>Minimum 1-year contract (2 months deposit, 1 month advance)</li><li>Periodic room inspections</li><li>Curfew: 10:00 PM</li></ul>','Indang, Cavite',14.19621884,120.88607101,6000.00,2,2,2,'2026-05-26 05:39:21','2026-05-26 05:39:21'),(2,1,'Alulod Studio Apartments','<p>Located along Indang-Mendez Rd, ideal for students with motorcycles. Parking available on site.</p>\n          <span class=\"section-label\">Requirements:</span>\n          <ul><li>Minimum 1-year contract</li><li>Motorcycle parking included</li><li>Curfew: 11:00 PM</li></ul>','Alulod, Indang, Cavite',14.20155448,120.89059621,5500.00,3,2,1,'2026-05-26 05:42:25','2026-05-26 05:42:25'),(3,1,'The Yellow Bell House','<p>Quiet female-only dormitory in Brgy. Mahabang Lupa. Study-friendly environment with strict curfew.</p>\n          <span class=\"section-label\">Requirements:</span>\n          <ul><li>Female students only</li><li>Minimum 6-month contract</li><li>Curfew: 9:00 PM</li></ul>','Indang, Cavite',14.20010355,120.88856309,4000.00,1,6,3,'2026-05-26 05:44:31','2026-05-26 05:44:31'),(4,1,'Bancod Skibidi','<p>Walking distance from CvSU. Budget-friendly option along Bancod Road.</p>\n          <span class=\"section-label\">Requirements:</span>\n          <ul><li>Minimum 6-month contract</li><li>1 month deposit, 1 month advance</li><li>Curfew: 10:00 PM</li></ul>','Bancod, Indang, Cavite',14.21131556,120.87711274,3000.00,2,4,1,'2026-05-26 05:47:20','2026-05-26 05:47:20');
 /*!40000 ALTER TABLE `dorms` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -201,7 +204,7 @@ CREATE TABLE `users` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -210,6 +213,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,'John','Doe','johndoe@gmail.com','1234','dorm_owner','2026-05-26 05:39:12');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -222,4 +226,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-05-26 10:31:43
+-- Dump completed on 2026-05-26 15:03:01
