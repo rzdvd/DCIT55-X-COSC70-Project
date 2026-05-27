@@ -96,6 +96,13 @@ function updatePanel(dorm) {
     <span class="section-label">Room Type:</span>
     <p>${inferredRoomType}</p>
   `;
+
+  const bookButton = document.querySelector('.btn-primary.glow-effect');
+  if (bookButton) {
+    bookButton.onclick = function() {
+      window.location.href = `booking.html?dorm_id=${dorm.dorm_id}`;
+    };
+  }
 }
 
 function applyFilters() {
