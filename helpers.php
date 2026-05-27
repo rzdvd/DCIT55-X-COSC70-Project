@@ -18,7 +18,7 @@ function redirect_with(string $page, ?string $error = null, ?string $success = n
 
 function set_user_session(array $user): void
 {
-    $_SESSION['user_id'] = (int) $user['id'];
+    $_SESSION['id'] = (int) $user['id'];
     $_SESSION['first_name'] = $user['first_name'];
     $_SESSION['last_name'] = $user['last_name'];
     $_SESSION['email'] = $user['email'];
@@ -27,7 +27,7 @@ function set_user_session(array $user): void
 
 function login_redirect_for_role(string $role): string
 {
-    return $role === 'dorm_owner' ? 'admin-dashboard.html' : 'listings.php';
+    return $role === 'dorm_owner' ? 'admin-dashboard.html' : 'listings.html';
 }
 
 function sanitize_email(string $email): string

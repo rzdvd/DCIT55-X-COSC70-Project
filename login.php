@@ -10,7 +10,7 @@ if (!empty($_POST['remember_me'])) {
 session_start();
 
 require_once __DIR__ . '/database/database.php';
-require_once __DIR__ . '/auth/helpers.php';
+require_once __DIR__ . '/helpers.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: login.html');
