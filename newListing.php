@@ -1,0 +1,78 @@
+<?php
+session_start();
+include ("./database/database.php");
+
+$owner_id = $_SESSION['id'];
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+    $dorm_name = $_POST['dorm_name'];
+    $description = $_POST['description'];
+    $address = $_POST['address'];
+    $latitude = $_POST['latitude'];
+    $longitude = $_POST['longitude'];
+    $monthly_rent = $_POST['monthly_rent'];
+    $available_rooms = $_POST['available_rooms'];
+    $total_rooms = $_POST['total_rooms'];
+    $room_capacity = $_POST['room_capacity'];
+
+    $query = "
+    INSERT INTO dorms (
+        owner_id,
+        dorm_name,
+        description,
+        address,
+        latitude,
+        longitude,
+        monthly_rent,
+        available_rooms,
+        total_rooms,
+        room_capacity
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ";
+
+    $stmt = $conn->prepare($query); $stmt->bind_param( "issssddiii", $owner_id,
+    $dorm_name, $description, $address, $latitude, $longitude, $monthly_rent, $available_rooms, $total_rooms, $room_capacity );
+
+     if ($stmt->execute()) {
+        $dorm_id = $conn->insert_id;
+
+        $uploadDir = "uploads/dorm_images/";
+
+        foreach ($_FILES['dorm_images']['tmp_name'] as $key => $tmp_name) {
+
+            $fileName = time() . "_" . $_FILES['dorm_images']['name'][$key];
+            $targetFile = $uploadDir . basename($fileName);
+
+            $allowedTypes = ['jpg', 'jpeg', 'png', 'webp'];
+
+            $fileExtension = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+
+            if (in_array($fileExtension, $allowedTypes)) {
+
+                if (move_uploaded_file($tmp_name, $targetFile)) {
+                    $imageQuery = "
+                    INSERT INTO dorm_images (
+                        dorm_id,
+                        image_url
+                    ) VALUES (?, ?)
+                    ";
+
+                    $imageStmt = $conn->prepare($imageQuery);
+                    $imageStmt->bind_param("is", $dorm_id, $targetFile);
+                    $imageStmt->execute();
+                }
+            }
+        }
+
+        echo "<script>alert('Dorm added successfully!')</script>";
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+
+    $stmt->close();
+    $conn->close();
+    header("Location: admin-dashboard.html");
+    exit();
+}
+?>
