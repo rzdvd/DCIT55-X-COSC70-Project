@@ -27,7 +27,7 @@ CREATE TABLE `amenities` (
   `amenity_name` varchar(100) NOT NULL,
   PRIMARY KEY (`amenity_id`),
   UNIQUE KEY `amenity_name` (`amenity_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -36,7 +36,7 @@ CREATE TABLE `amenities` (
 
 LOCK TABLES `amenities` WRITE;
 /*!40000 ALTER TABLE `amenities` DISABLE KEYS */;
-INSERT INTO `amenities` VALUES (1,'Aircon'),(2,'Parking'),(4,'Shared'),(3,'Solo'),(5,'Wifi');
+INSERT INTO `amenities` VALUES (1,'Aircon'),(6,'Electricity'),(8,'Kitchen'),(11,'Kubo'),(9,'Laundry'),(10,'Maintenance'),(2,'Parking'),(4,'Shared'),(3,'Solo'),(7,'Water'),(5,'Wifi');
 /*!40000 ALTER TABLE `amenities` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -258,4 +258,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-01 14:49:30
+-- Dump completed on 2026-06-02 15:12:29

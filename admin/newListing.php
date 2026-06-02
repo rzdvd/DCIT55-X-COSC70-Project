@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           }
         }
 
-        $uploadDir = "uploads/dorm_../images/";
+        $uploadDir = "../uploads/dorm_images/";
 
         foreach ($_FILES['dorm_images']['tmp_name'] as $key => $tmp_name) {
 
