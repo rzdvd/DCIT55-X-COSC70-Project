@@ -342,6 +342,8 @@
         padding: 1.5rem;
         display: flex;
         flex-direction: column;
+        aspect-ratio: 16/10; /* Matches the image card size */
+        max-height: 100%;
       }
 
       .listings-menu h2 {
@@ -384,6 +386,8 @@
         text-overflow: ellipsis;
         cursor: pointer;
         transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
       }
 
       .listing-item:hover {
@@ -518,7 +522,9 @@
   </head>
 
   <body>
+    <body>
     <div class="overlay">
+      <!-- Navbar remains unchanged -->
       <nav class="navbar">
         <div class="left-nav">
           <img src="images/logo.png" alt="Logo" class="logo" />
@@ -554,159 +560,110 @@
         <div class="up">
           <div class="image-card">
             <button class="arrow-btn prev-btn" id="prevBtn">&#9664;</button>
-            <div class="slides-wrapper" id="slidesWrapper">
-              <div class="slide">
-                <img src="images/dorm1.webp" alt="Semi Furnished Studio" />
-              </div>
-              <div class="slide">
-                <img src="images/dorm2.webp" alt="Studio near Circuit Makati" />
-              </div>
-              <div class="slide">
-                <img src="images/dorm3.webp" alt="Studio Santa Ana" />
-              </div>
-              <div class="slide">
-                <img src="images/dorm4.webp" alt="Bedspace for Rent" />
-              </div>
-            </div>
+            <!-- Slides will be injected here -->
+            <div class="slides-wrapper" id="slidesWrapper"></div>
             <button class="arrow-btn next-btn" id="nextBtn">&#9654;</button>
           </div>
 
           <div class="listings-menu">
             <h2>LISTINGS</h2>
-            <div class="listings-scroll-container" id="listingsContainer">
-              <div class="listing-item active" data-index="0">
-                Semi Furnished Studio For Rent in Pedro Gil...
-              </div>
-              <div class="listing-item" data-index="1">
-                For Rent Studio near Circuit Makati in Pedro Gil...
-              </div>
-              <div class="listing-item" data-index="2">
-                Studio for Rent in Santa Ana near Circuit Makati...
-              </div>
-              <div class="listing-item" data-index="3">
-                Bedspace for Rent for Solo or Groups Max 6 Pax...
-              </div>
-            </div>
+            <!-- Listing items will be injected here -->
+            <div class="listings-scroll-container" id="listingsContainer"></div>
           </div>
         </div>
       </div>
 
       <div class="dorms-section">
         <h3>All Listings</h3>
-        <div class="dorm-grid">
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm1.webp" alt="" /></div>
-            <div class="text">
-              Semi Furnished Studio For Rent in Pedro Gil Sta Ana Manila near
-              Makati
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm2.webp" alt="" /></div>
-            <div class="text">
-              For Rent Studio near Circuit Makati in Pedro Gil Santa Ana Manila
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm3.webp" alt="" /></div>
-            <div class="text">
-              Studio for Rent in Santa Ana near Circuit Makati Pedro Gil Manila
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm4.webp" alt="" /></div>
-            <div class="text">
-              Bedspace for Rent for Solo or Groups Max 6 Pax in Pasig
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm1.webp" alt="" /></div>
-            <div class="text">
-              Semi Furnished Studio For Rent in Pedro Gil Sta Ana Manila near
-              Makati
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm2.webp" alt="" /></div>
-            <div class="text">
-              For Rent Studio near Circuit Makati in Pedro Gil Santa Ana Manila
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm3.webp" alt="" /></div>
-            <div class="text">
-              Studio for Rent in Santa Ana near Circuit Makati Pedro Gil Manila
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm4.webp" alt="" /></div>
-            <div class="text">
-              Bedspace for Rent for Solo or Groups Max 6 Pax in Pasig
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm1.webp" alt="" /></div>
-            <div class="text">
-              Semi Furnished Studio For Rent in Pedro Gil Sta Ana Manila near
-              Makati
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm2.webp" alt="" /></div>
-            <div class="text">
-              For Rent Studio near Circuit Makati in Pedro Gil Santa Ana Manila
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm3.webp" alt="" /></div>
-            <div class="text">
-              Studio for Rent in Santa Ana near Circuit Makati Pedro Gil Manila
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-          <div class="dorm">
-            <div class="pic"><img src="images/dorm4.webp" alt="" /></div>
-            <div class="text">
-              Bedspace for Rent for Solo or Groups Max 6 Pax in Pasig
-            </div>
-            <div class="price">₱10,000 monthly</div>
-          </div>
-        </div>
+        <!-- Dorm grid items will be injected here -->
+        <div class="dorm-grid" id="dormGrid"></div>
       </div>
     </div>
-    <script>
-      const wrapper = document.getElementById("slidesWrapper");
-      const prevBtn = document.getElementById("prevBtn");
-      const nextBtn = document.getElementById("nextBtn");
-      const items = document.querySelectorAll(".listing-item");
-      const total = items.length;
-      let current = 0;
 
-      function goTo(index) {
-        current = (index + total) % total;
-        wrapper.style.transform = `translateX(-${current * 100}%)`;
-        items.forEach((item, i) =>
-          item.classList.toggle("active", i === current),
-        );
+    <script>
+      document.addEventListener("DOMContentLoaded", fetchDorms);
+
+      async function fetchDorms() {
+        try {
+          // Adjust the path to where you saved get_dorms.php
+          const response = await fetch('homepage.php'); 
+          const data = await response.json();
+
+          if (data.success && data.dorms.length > 0) {
+            renderDorms(data.dorms);
+          } else {
+            document.getElementById('dormGrid').innerHTML = "<p style='color: white;'>No dorms found.</p>";
+          }
+        } catch (error) {
+          console.error("Error fetching dorms:", error);
+        }
       }
 
-      prevBtn.addEventListener("click", () => goTo(current - 1));
-      nextBtn.addEventListener("click", () => goTo(current + 1));
+      function renderDorms(dorms) {
+        const slidesWrapper = document.getElementById("slidesWrapper");
+        const listingsContainer = document.getElementById("listingsContainer");
+        const dormGrid = document.getElementById("dormGrid");
 
-      items.forEach((item) => {
-        item.addEventListener("click", () => goTo(Number(item.dataset.index)));
-      });
+        let current = 0;
+        const total = dorms.length;
+
+        // Clear existing static content just in case
+        slidesWrapper.innerHTML = '';
+        listingsContainer.innerHTML = '';
+        dormGrid.innerHTML = '';
+
+        dorms.forEach((dorm, index) => {
+          const imageUrl = dorm.image_url ? dorm.image_url : 'images/dorm1.webp'; 
+          const price = parseFloat(dorm.monthly_rent).toLocaleString();
+
+          // 1. Populate Carousel (Now Clickable!)
+          const slide = document.createElement("div");
+          slide.className = "slide";
+          slide.style.cursor = "pointer"; // Shows the user it's clickable
+          slide.innerHTML = `<img src="${imageUrl}" alt="${dorm.dorm_name}" />`;
+          // Redirect when clicking the carousel image
+          slide.addEventListener("click", () => {
+            window.location.href = `listings/listings.html?dorm_id=${dorm.dorm_id}`;
+          });
+          slidesWrapper.appendChild(slide);
+
+          // 2. Populate Listings Menu (Stays the same - controls the carousel)
+          const listItem = document.createElement("div");
+          listItem.className = `listing-item ${index === 0 ? "active" : ""}`;
+          listItem.dataset.index = index;
+          listItem.textContent = `${dorm.dorm_name} in ${dorm.address}`;
+          listItem.addEventListener("click", () => goTo(index));
+          listingsContainer.appendChild(listItem);
+
+          // 3. Populate Dorm Grid (Now Clickable!)
+          const gridItem = document.createElement("div");
+          gridItem.className = "dorm";
+          gridItem.innerHTML = `
+            <div class="pic"><img src="${imageUrl}" alt="${dorm.dorm_name}" /></div>
+            <div class="text">${dorm.dorm_name} - ${dorm.address}</div>
+            <div class="price">₱${price} monthly</div>
+          `;
+          // Redirect when clicking the bottom grid items
+          gridItem.addEventListener("click", () => {
+            window.location.href = `listings/listings.html?dorm_id=${dorm.dorm_id}`;
+          });
+          dormGrid.appendChild(gridItem);
+        });
+
+        // Carousel Logic Initialization
+        const prevBtn = document.getElementById("prevBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const items = document.querySelectorAll(".listing-item");
+
+        function goTo(index) {
+          current = (index + total) % total;
+          slidesWrapper.style.transform = `translateX(-${current * 100}%)`;
+          items.forEach((item, i) => item.classList.toggle("active", i === current));
+        }
+
+        prevBtn.onclick = () => goTo(current - 1);
+        nextBtn.onclick = () => goTo(current + 1);
+      }
     </script>
   </body>
 </html>

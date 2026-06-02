@@ -33,7 +33,7 @@ function loadDormData() {
       renderDormCards(filteredDorms);
       renderMarkers(filteredDorms);
       updateResultCount();
-    })
+    }) // <-- This closing bracket was missing in your snippet!
     .catch(err => console.error('Failed to load dorms', err));
 }
 
@@ -46,9 +46,24 @@ function renderDormCards(dorms) {
     return;
   }
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const selectedDormId = urlParams.get('dorm_id');
+  
+  let activeIndex = 0; 
+  if (selectedDormId) {
+    const foundIndex = dorms.findIndex(d => String(d.dorm_id) === String(selectedDormId));
+    
+    if (foundIndex !== -1) {
+      activeIndex = foundIndex; 
+      console.log(`Success: Found Dorm ID ${selectedDormId} at position ${activeIndex}`);
+    } else {
+      console.log(`Warning: Dorm ID ${selectedDormId} is in the URL, but not found in the database list.`);
+    }
+  }
+
   dorms.forEach((dorm, index) => {
     const card = document.createElement('div');
-    card.className = `dorm-card ${index === 0 ? 'active' : ''}`;
+    card.className = `dorm-card ${index === activeIndex ? 'active' : ''}`;
     card.dataset.index = index;
     card.dataset.dormId = dorm.dorm_id;
 
@@ -92,7 +107,16 @@ function renderDormCards(dorms) {
   });
 
   if (dorms.length > 0) {
-    updatePanel(dorms[0]);
+    updatePanel(dorms[activeIndex]);
+    
+    if (selectedDormId) {
+      setTimeout(() => {
+        const activeCard = document.querySelector('.dorm-card.active');
+        if(activeCard) {
+          activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
   }
 }
 
