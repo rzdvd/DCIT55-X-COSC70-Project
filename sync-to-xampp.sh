@@ -9,4 +9,7 @@ rsync -a --delete \
   --exclude 'sync-to-xampp.sh' \
   "$SRC/" "$DEST/"
 echo "Synced to $DEST"
-echo "Open: http://localhost/hanapdorm/homepaage.html"
+echo "Open: http://localhost/hanapdorm2/homepage.html"
+
+
+echo "Open: http://localhost/hanapdorm2/auth/reset-password.php?token=<generated-token>"

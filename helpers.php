@@ -1,6 +1,6 @@
 <?php
 
-function redirect_with(string $page, ?string $error = null, ?string $success = null): void
+function redirect_with(string $page, ?string $error = null, ?string $success = null, ?string $resetLink = null): void
 {
     $params = [];
     if ($error !== null && $error !== '') {
@@ -8,6 +8,9 @@ function redirect_with(string $page, ?string $error = null, ?string $success = n
     }
     if ($success !== null && $success !== '') {
         $params['success'] = $success;
+    }
+    if ($resetLink !== null && $resetLink !== '') {
+        $params['reset_link'] = urlencode($resetLink);
     }
 
     $separator = strpos($page, '?') !== false ? '&' : '?';
@@ -27,7 +30,7 @@ function set_user_session(array $user): void
 
 function login_redirect_for_role(string $role): string
 {
-    return $role === 'dorm_owner' ? 'admin-dashboard.html' : 'listings.html';
+    return $role === 'dorm_owner' ? 'admin/admin-dashboard.html' : 'listings/listings.html';
 }
 
 function sanitize_email(string $email): string
@@ -69,7 +72,16 @@ function send_reset_email(string $email, string $token): bool
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
     $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? ''), '/\\');
-    $resetLink = $scheme . '://' . $host . $basePath . '/reset-password.php?token=' . urlencode($token);
+    $resetLink = $scheme . '://' . $host . $basePath . '/auth/reset-password.php?token=' . urlencode($token);
+
+    // Check if running on localhost - store link for development testing
+    if (is_localhost()) {
+        $resetFile = sys_get_temp_dir() . '/hanapdorm_reset_' . md5($email) . '.txt';
+        file_put_contents($resetFile, $resetLink);
+        // Store in session for quick access
+        $_SESSION['dev_reset_link_' . md5($email)] = $resetLink;
+        return true;
+    }
 
     $subject = 'HanapDormIndang Password Reset';
     $message = "Hello,\n\n";
@@ -82,4 +94,26 @@ function send_reset_email(string $email, string $token): bool
     $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 
     return @mail($email, $subject, $message, $headers);
+}
+
+function is_localhost(): bool
+{
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    return strpos($host, 'localhost') !== false || 
+           strpos($host, '127.0.0.1') !== false ||
+           strpos($host, '::1') !== false;
+}
+
+function get_dev_reset_link(string $email): ?string
+{
+    if (!is_localhost()) {
+        return null;
+    }
+    
+    $resetFile = sys_get_temp_dir() . '/hanapdorm_reset_' . md5($email) . '.txt';
+    if (file_exists($resetFile)) {
+        return file_get_contents($resetFile);
+    }
+    
+    return $_SESSION['dev_reset_link_' . md5($email)] ?? null;
 }

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HanapDormIndang | My Favorites</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="../auth/auth.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: url('../../images/bg.png') no-repeat center center/cover;
+      background-attachment: fixed;
+    }
+
+    .overlay {
+      width: 100%;
+      min-height: 100vh;
+      background: rgba(0, 0, 0, 0.55);
+      padding: 1.25rem 3rem 3rem;
+      overflow-y: auto;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: -20px;
+      padding: 0 50px 8px 50px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+      margin-left: -50px;
+      margin-right: -50px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+    }
+
+    .left-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .logo {
+      width: 5rem;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 0.9rem;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 0.625rem;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: #4fdcff;
+    }
+
+    .nav-links a.active {
+      color: #4fdcff;
+    }
+
+    .signin-top {
+      color: white;
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      transition: 0.3s;
+    }
+
+    .signin-top:hover {
+      border: 1px solid #00d9ff;
+      box-shadow: 0 0 0.6rem rgba(0, 217, 255, 0.8), 0 0 1.2rem rgba(0, 217, 255, 0.5);
+      color: #4fdcff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .profile-pic {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      object-fit: cover;
+      transition: all 0.3s;
+    }
+
+    .profile-pic:hover {
+      border-color: #4fdcff;
+      box-shadow: 0 0 0.6rem rgba(79, 220, 255, 0.6);
+    }
+
+    .profile-name {
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .profile-menu {
+      display: none;
+      position: absolute;
+      top: 2.8rem;
+      right: 0;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(0, 188, 212, 0.3);
+      border-radius: 0.5rem;
+      min-width: 150px;
+      z-index: 1001;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .profile-menu.active {
+      display: block;
+    }
+
+    .profile-menu a,
+    .profile-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.6rem 1rem;
+      color: #cbd5e0;
+      text-decoration: none;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .profile-menu a:hover,
+    .profile-menu button:hover {
+      background: rgba(0, 188, 212, 0.15);
+      color: #4fdcff;
+    }
+
+    .profile-menu a:last-child,
+    .profile-menu button:last-child {
+      border-bottom: none;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+    }
+
+    h1 {
+      color: #ffffff;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #a0aec0;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .favorites-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .favorite-card {
+      background: rgba(20, 20, 20, 0.35);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.15), 0 0 25px rgba(255, 255, 255, 0.08);
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .favorite-card:hover {
+      border-color: rgba(79, 220, 255, 0.5);
+      box-shadow: 0 0 15px rgba(79, 220, 255, 0.3), 0 0 30px rgba(79, 220, 255, 0.15);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 15px;
+      gap: 10px;
+    }
+
+    .dorm-title {
+      color: #4fdcff;
+      font-size: 18px;
+      font-weight: bold;
+      flex: 1;
+    }
+
+    .favorite-btn {
+      background: rgba(255, 59, 59, 0.2);
+      border: 1px solid rgba(255, 59, 59, 0.5);
+      color: #ff6b6b;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .favorite-btn:hover {
+      background: rgba(255, 59, 59, 0.3);
+      border-color: #ff6b6b;
+    }
+
+    .card-details {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      margin-bottom: 15px;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: start;
+      gap: 10px;
+    }
+
+    .detail-icon {
+      color: #4fdcff;
+      font-size: 14px;
+      min-width: 20px;
+    }
+
+    .detail-text {
+      color: #cbd5e0;
+      font-size: 13px;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    .price-section {
+      background: rgba(79, 220, 255, 0.1);
+      border: 1px solid rgba(79, 220, 255, 0.3);
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .price-value {
+      color: #4fdcff;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-book {
+      flex: 1;
+      background: linear-gradient(135deg, #1fa8df 0%, #ffffff 100%);
+      color: #000000;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+
+    .btn-book:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 1.5rem rgba(31, 168, 223, 0.8);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #a0aec0;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      color: #4fdcff;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .empty-state h2 {
+      color: #cbd5e0;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .empty-state p {
+      margin-bottom: 20px;
+    }
+
+    .btn-browse {
+      color: #000000;
+      background: linear-gradient(135deg, #1fa8df 0%, #ffffff 100%);
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-browse:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 1.5rem rgba(31, 168, 223, 0.8);
+    }
+
+    .loading {
+      text-align: center;
+      color: #4fdcff;
+      padding: 40px;
+      font-size: 16px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(79, 220, 255, 0.3);
+      border-top-color: #4fdcff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .favorites-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        margin: 1rem;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <nav class="navbar">
+      <div class="left-nav">
+        <img src="../images/logo.png" alt="Logo" class="logo">
+        <ul class="nav-links">
+          <li><a href="../homepage.html">Home</a></li>
+          <li><a href="listings.html">Listings</a></li>
+          <li><a href="my-bookings.html">My Bookings</a></li>
+        </ul>
+      </div>
+      <div id="navRightSection"></div>
+    </nav>
+
+    <div class="container">
+      <h1><i class="fas fa-heart" style="color: #ff6b6b;"></i> My Favorites</h1>
+      <p class="subtitle">Your saved dorm listings</p>
+
+      <div id="loadingState" class="loading">
+        <span class="spinner"></span>
+        Loading your favorites...
+      </div>
+
+      <div id="favoritesContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      loadFavorites();
+    });
+
+    function loadFavorites() {
+      fetch('favorites.php?action=list')
+        .then(res => {
+          if (res.status === 401) {
+            window.location.href = 'auth/login.html?error=Please log in to view favorites';
+            return;
+          }
+          return res.json();
+        })
+        .then(data => {
+          if (data.error) {
+            showEmpty('Failed to load favorites');
+            return;
+          }
+
+          const favorites = data.favorites || [];
+          const container = document.getElementById('favoritesContainer');
+          const loadingState = document.getElementById('loadingState');
+
+          loadingState.style.display = 'none';
+
+          if (favorites.length === 0) {
+            container.innerHTML = `
+              <div class="empty-state">
+                <i class="fas fa-heart"></i>
+                <h2>No Favorites Yet</h2>
+                <p>Add your favorite dorms from the listings page to see them here.</p>
+                <a href="listings.html" class="btn-browse">Browse Dorms</a>
+              </div>
+            `;
+            return;
+          }
+
+          container.innerHTML = '<div class="favorites-grid">' + 
+            favorites.map(fav => createFavoriteCard(fav)).join('') +
+            '</div>';
+        })
+        .catch(err => {
+          console.error('Error loading favorites:', err);
+          showEmpty('Failed to load favorites');
+        });
+    }
+
+    function createFavoriteCard(favorite) {
+      return `
+        <div class="favorite-card">
+          <div class="card-header">
+            <div class="dorm-title">${escapeHtml(favorite.dorm_name)}</div>
+            <button class="favorite-btn" onclick="removeFavorite(${favorite.dorm_id}, this)">
+              <i class="fas fa-times"></i> Remove
+            </button>
+          </div>
+
+          <div class="card-details">
+            <div class="detail-item">
+              <i class="fas fa-map-pin detail-icon"></i>
+              <span class="detail-text">${escapeHtml(favorite.address)}</span>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-users detail-icon"></i>
+              <span class="detail-text">
+                <span class="detail-label">Room Capacity:</span> ${favorite.room_capacity} person(s)
+              </span>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-door-open detail-icon"></i>
+              <span class="detail-text">
+                <span class="detail-label">Available:</span> ${favorite.available_rooms} room(s)
+              </span>
+            </div>
+          </div>
+
+          <div class="price-section">
+            <div class="price-value">₱${parseFloat(favorite.monthly_rent).toLocaleString('en-PH', {minimumFractionDigits: 2})}</div>
+            <div style="font-size: 11px; color: #a0aec0; margin-top: 4px;">per month</div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn-book" onclick="bookDorm(${favorite.dorm_id})">
+              <i class="fas fa-calendar"></i> Book Now
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function removeFavorite(dormId, button) {
+      const formData = new FormData();
+      formData.append('dorm_id', dormId);
+      formData.append('action', 'toggle');
+
+      fetch('favorites.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          loadFavorites();
+        }
+      })
+      .catch(err => console.error('Error removing favorite:', err));
+    }
+
+    function bookDorm(dormId) {
+      window.location.href = `listings/booking.html?dorm_id=${dormId}`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function showEmpty(message) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('favoritesContainer').innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-exclamation-circle"></i>
+          <h2>Error</h2>
+          <p>${message}</p>
+          <a href="listings.html" class="btn-browse">Back to Listings</a>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
