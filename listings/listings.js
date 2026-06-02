@@ -246,12 +246,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Load favorites on page load
   loadUserFavorites();
 });
 
 function loadUserFavorites() {
-  // Check all dorms to see which are favorited
   dormData.forEach(dorm => {
     fetch(`listings/favorites.php?action=check&dorm_id=${dorm.dorm_id}`)
       .then(res => res.json())
