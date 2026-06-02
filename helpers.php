@@ -30,7 +30,7 @@ function set_user_session(array $user): void
 
 function login_redirect_for_role(string $role): string
 {
-    return $role === 'dorm_owner' ? 'admin/admin-dashboard.html' : 'listings/listings.html';
+    return $role === 'dorm_owner' ? '../admin/admin-dashboard.html' : '../listings/listings.html';
 }
 
 function sanitize_email(string $email): string
