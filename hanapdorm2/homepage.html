@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HanapDormIndang</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="auth/auth.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        background-image: url("./images/bg.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        background-attachment: fixed;
+      }
+
+      .overlay {
+        width: 100%;
+        min-height: 100vh;
+      }
+
+      .overlay {
+        width: 100%;
+        min-height: 100vh;
+        background: rgba(0, 0, 0, 0.55);
+        padding: 1.25rem 3rem 3rem;
+      }
+
+      /* ── Navbar ── */
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: -20px;
+        padding: 0 50px 8px 50px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+        margin-left: -50px;
+        margin-right: -50px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        backdrop-filter: blur(12px);
+      }
+
+      .left-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .logo {
+        width: 5rem;
+      }
+
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 0.9rem;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: 0.625rem;
+        transition: 0.3s;
+      }
+
+      .nav-links a:hover {
+        color: #4fdcff;
+        transition: 0.5s;
+      }
+
+      .signin-top {
+        color: white;
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding: 0.5rem 1.1rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        transition: 0.3s;
+      }
+
+      .signin-top:hover {
+        border: 1px solid #00d9ff;
+        box-shadow:
+          0 0 0.6rem rgba(0, 217, 255, 0.8),
+          0 0 1.2rem rgba(0, 217, 255, 0.5);
+        color: #4fdcff;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .profile-section {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .profile-pic {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        object-fit: cover;
+        transition: all 0.3s;
+      }
+
+      .profile-pic:hover {
+        border-color: #4fdcff;
+        box-shadow: 0 0 0.6rem rgba(79, 220, 255, 0.6);
+      }
+
+      .profile-name {
+        color: #ffffff;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .profile-menu {
+        display: none;
+        position: absolute;
+        top: 2.8rem;
+        right: 0;
+        background: rgba(15, 23, 42, 0.95);
+        border: 1px solid rgba(0, 188, 212, 0.3);
+        border-radius: 0.5rem;
+        min-width: 150px;
+        z-index: 1001;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      .profile-menu.active {
+        display: block;
+      }
+
+      .profile-menu a,
+      .profile-menu button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.6rem 1rem;
+        color: #cbd5e0;
+        text-decoration: none;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .profile-menu a:hover,
+      .profile-menu button:hover {
+        background: rgba(0, 188, 212, 0.15);
+        color: #4fdcff;
+      }
+
+      .profile-menu a:last-child,
+      .profile-menu button:last-child {
+        border-bottom: none;
+      }
+
+      .hero {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 2.5rem;
+      }
+
+      .top {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem 0 1rem;
+      }
+
+      .main-title {
+        text-align: center;
+        line-height: 1.1;
+      }
+
+      .main-title h1 {
+        font-size: 3.5rem;
+        color: #3b82f6;
+        letter-spacing: 2px;
+        font-weight: bold;
+      }
+
+      .main-title span {
+        display: block;
+        font-size: 1.75rem;
+        color: #a0aec0;
+        letter-spacing: 5px;
+        margin-top: 5px;
+      }
+
+      .search-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 0.5rem;
+      }
+
+      .search-bar {
+        display: flex;
+        align-items: center;
+        background-color: rgba(17, 26, 36, 0.25);
+        border: 2px solid #4a4d53;
+        border-radius: 50px;
+        padding: 0.35rem 0.35rem 0.35rem 1.2rem;
+        width: 55%;
+        max-width: 100%;
+      }
+
+      .input-section {
+        display: flex;
+        align-items: center;
+        flex: 1;
+      }
+
+      .location-section {
+        border-left: 1px solid #2e3846;
+        padding-left: 0.9rem;
+      }
+
+      .icon {
+        color: #5c6b73;
+        margin-right: 0.6rem;
+        font-size: 0.9rem;
+      }
+
+      .search-bar input {
+        background: transparent;
+        border: none;
+        color: #ffffff;
+        font-size: 0.9rem;
+        width: 100%;
+        outline: none;
+      }
+
+      .search-bar input::placeholder {
+        color: #5c6b73;
+      }
+
+      .find-btn {
+        background: linear-gradient(135deg, #1fa8df 0%, #ffffff 100%);
+        color: #000000;
+        border: none;
+        font-weight: bold;
+        font-size: 0.85rem;
+        padding: 0.6em 1.4em;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow:
+          0 0 1.2rem rgba(31, 168, 223, 0.6),
+          0 0 2.5rem rgba(31, 168, 223, 0.3);
+        white-space: nowrap;
+      }
+
+      .find-btn:hover {
+        transform: scale(1.02);
+        box-shadow:
+          0 0 1.5rem rgba(31, 168, 223, 0.8),
+          0 0 3rem rgba(31, 168, 223, 0.5);
+      }
+
+      /* ── Carousel + Listings row ── */
+      .up {
+        display: flex;
+        justify-content: space-evenly;
+        gap: 1.5rem;
+        margin-top: 1rem;
+      }
+
+      .image-card {
+        position: relative;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        width: 50%;
+        aspect-ratio: 16/10;
+      }
+
+      .slides-wrapper {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .slide {
+        flex: 0 0 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .arrow-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.7);
+        border: none;
+        border-radius: 0.25rem;
+        padding: 0.75em 0.5em;
+        cursor: pointer;
+        font-size: 0.875rem;
+        color: #333;
+        transition: background 0.2s;
+        z-index: 10;
+      }
+
+      .arrow-btn:hover {
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .prev-btn {
+        left: 2%;
+      }
+
+      .next-btn {
+        right: 2%;
+      }
+
+      .listings-menu {
+        width: 45%;
+        background-color: #1e222b9a;
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .listings-menu h2 {
+        color: #ffffff;
+        font-size: 0.875rem;
+        letter-spacing: 0.06em;
+        margin: 0 0 1.2rem;
+      }
+
+      .listings-scroll-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        overflow-y: auto;
+        flex: 1;
+        padding-right: 0.75rem;
+      }
+
+      .listings-scroll-container::-webkit-scrollbar {
+        width: 0.5rem;
+      }
+
+      .listings-scroll-container::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .listings-scroll-container::-webkit-scrollbar-thumb {
+        background: #50555e;
+        border-radius: 0.625rem;
+      }
+
+      .listing-item {
+        background-color: #ffffff49;
+        color: #c5c9d0;
+        padding: 0.875rem 1rem;
+        border-radius: 0.75rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .listing-item:hover {
+        background-color: #353b49;
+        color: #ffffff;
+      }
+
+      .listing-item.active {
+        background-color: #ffffff;
+        color: #000000;
+        font-weight: bold;
+      }
+
+      /* ── Dorm Grid ── */
+      .dorms-section {
+        padding: 2rem 0 0;
+      }
+
+      .dorms-section h3 {
+        color: #ffffff;
+        font-size: 0.875rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 1.25rem;
+      }
+
+      .dorm-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
+      }
+
+      .dorm {
+        display: flex;
+        flex-direction: column;
+        background-color: #1e222b52;
+        border-radius: 0.875rem;
+        overflow: hidden;
+        cursor: pointer;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .dorm:hover {
+        transform: translateY(-0.25rem);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.4);
+      }
+
+      .dorm .pic {
+        width: 100%;
+        aspect-ratio: 4/3;
+        background-color: #2a2f3a;
+        overflow: hidden;
+      }
+
+      .dorm .pic img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.3s;
+      }
+
+      .dorm:hover > .pic img {
+        transform: scale(1.05);
+      }
+
+      .dorm > .text {
+        padding: 0.75rem 0.75rem 0.25rem;
+        color: #e0e0e0;
+        font-size: 0.78rem;
+        line-height: 1.4;
+        flex-grow: 1;
+      }
+
+      .dorm > .price {
+        padding: 0.25rem 0.75rem 0.75rem;
+        color: #4fdcff;
+        font-size: 0.78rem;
+        font-weight: bold;
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 768px) {
+        .overlay {
+          padding: 1rem 1rem 2rem;
+        }
+
+        .up {
+          flex-direction: column;
+          align-items: center;
+          gap: 1.5rem;
+        }
+
+        .image-card {
+          width: 100%;
+        }
+
+        .listings-menu {
+          width: 100%;
+          height: 15rem;
+        }
+
+        .search-bar {
+          width: 90%;
+        }
+
+        .dorm-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .main-title h1 {
+          font-size: 2.5rem;
+        }
+
+        .main-title span {
+          font-size: 1.25rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .dorm-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .nav-links {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="overlay">
+      <nav class="navbar">
+        <div class="left-nav">
+          <img src="images/finals-logo.png" alt="Logo" class="logo" />
+          <ul class="nav-links">
+            <li><a href="homepage.html" class="active">Home</a></li>
+            <li><a href="listings/listings.html">Listings</a></li>
+          </ul>
+        </div>
+        <div id="navRightSection"></div>
+      </nav>
+
+      <div class="hero">
+        <div class="top">
+          <div class="main-title">
+            <h1>HANAP DORM</h1>
+            <span>INDANG</span>
+          </div>
+          <div class="search-container">
+            <div class="search-bar">
+              <div class="input-section">
+                <i class="fa-solid fa-magnifying-glass icon"></i>
+                <input type="text" placeholder="find dorms" />
+              </div>
+              <div class="input-section location-section">
+                <i class="fa-solid fa-location-dot icon"></i>
+                <input type="text" placeholder="location" />
+              </div>
+              <button class="find-btn">Find Dorms</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="up">
+          <div class="image-card">
+            <button class="arrow-btn prev-btn" id="prevBtn">&#9664;</button>
+            <div class="slides-wrapper" id="slidesWrapper">
+              <div class="slide">
+                <img src="uploads/dorms/dorm1.webp" alt="Semi Furnished Studio" />
+              </div>
+              <div class="slide">
+                <img src="uploads/dorms/dorm2.webp" alt="Studio near Circuit Makati" />
+              </div>
+              <div class="slide">
+                <img src="uploads/dorms/dorm3.webp" alt="Studio Santa Ana" />
+              </div>
+              <div class="slide">
+                <img src="uploads/dorms/dorm4.webp" alt="Bedspace for Rent" />
+              </div>
+            </div>
+            <button class="arrow-btn next-btn" id="nextBtn">&#9654;</button>
+          </div>
+
+          <div class="listings-menu">
+            <h2>LISTINGS</h2>
+            <div class="listings-scroll-container" id="listingsContainer">
+              <div class="listing-item active" data-index="0">
+                Semi Furnished Studio For Rent in Pedro Gil...
+              </div>
+              <div class="listing-item" data-index="1">
+                For Rent Studio near Circuit Makati in Pedro Gil...
+              </div>
+              <div class="listing-item" data-index="2">
+                Studio for Rent in Santa Ana near Circuit Makati...
+              </div>
+              <div class="listing-item" data-index="3">
+                Bedspace for Rent for Solo or Groups Max 6 Pax...
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dorms-section">
+        <h3>All Listings</h3>
+        <div class="dorm-grid">
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm1.webp" alt="" /></div>
+            <div class="text">
+              Semi Furnished Studio For Rent in Pedro Gil Sta Ana Manila near
+              Makati
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm2.webp" alt="" /></div>
+            <div class="text">
+              For Rent Studio near Circuit Makati in Pedro Gil Santa Ana Manila
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm3.webp" alt="" /></div>
+            <div class="text">
+              Studio for Rent in Santa Ana near Circuit Makati Pedro Gil Manila
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm4.webp" alt="" /></div>
+            <div class="text">
+              Bedspace for Rent for Solo or Groups Max 6 Pax in Pasig
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm1.webp" alt="" /></div>
+            <div class="text">
+              Semi Furnished Studio For Rent in Pedro Gil Sta Ana Manila near
+              Makati
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm2.webp" alt="" /></div>
+            <div class="text">
+              For Rent Studio near Circuit Makati in Pedro Gil Santa Ana Manila
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm3.webp" alt="" /></div>
+            <div class="text">
+              Studio for Rent in Santa Ana near Circuit Makati Pedro Gil Manila
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm4.webp" alt="" /></div>
+            <div class="text">
+              Bedspace for Rent for Solo or Groups Max 6 Pax in Pasig
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm1.webp" alt="" /></div>
+            <div class="text">
+              Semi Furnished Studio For Rent in Pedro Gil Sta Ana Manila near
+              Makati
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm2.webp" alt="" /></div>
+            <div class="text">
+              For Rent Studio near Circuit Makati in Pedro Gil Santa Ana Manila
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm3.webp" alt="" /></div>
+            <div class="text">
+              Studio for Rent in Santa Ana near Circuit Makati Pedro Gil Manila
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+          <div class="dorm">
+            <div class="pic"><img src="uploads/dorms/dorm4.webp" alt="" /></div>
+            <div class="text">
+              Bedspace for Rent for Solo or Groups Max 6 Pax in Pasig
+            </div>
+            <div class="price">₱10,000 monthly</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const wrapper = document.getElementById("slidesWrapper");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const items = document.querySelectorAll(".listing-item");
+      const total = items.length;
+      let current = 0;
+
+      function goTo(index) {
+        current = (index + total) % total;
+        wrapper.style.transform = `translateX(-${current * 100}%)`;
+        items.forEach((item, i) =>
+          item.classList.toggle("active", i === current),
+        );
+      }
+
+      prevBtn.addEventListener("click", () => goTo(current - 1));
+      nextBtn.addEventListener("click", () => goTo(current + 1));
+
+      items.forEach((item) => {
+        item.addEventListener("click", () => goTo(Number(item.dataset.index)));
+      });
+    </script>
+  </body>
+</html>

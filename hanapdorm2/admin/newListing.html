@@ -1,0 +1,526 @@
+<!doctype html>
+<html>
+  <head>
+    <title>HanapDormCvSU | Add New Listing</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="../auth/auth.js"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        background: url("../images/bg.png") no-repeat center center/cover;
+        background-attachment: fixed;
+      }
+
+      .overlay {
+        width: 100%;
+        min-height: 100vh;
+        background: rgba(0, 0, 0, 0.55);
+        padding: 1.25rem 3rem 3rem;
+        overflow-y: auto;
+        max-height: 100vh;
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: -20px;
+        padding: 0 50px 8px 50px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+        margin-left: -50px;
+        margin-right: -50px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        backdrop-filter: blur(12px);
+      }
+
+      .left-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .logo {
+        width: 5rem;
+      }
+
+      .nav-links {
+        display: flex;
+        list-style: none;
+        gap: 0.9rem;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: 0.625rem;
+        transition: 0.3s;
+      }
+
+      .nav-links a:hover {
+        color: #4fdcff;
+      }
+      .nav-links a.active {
+        color: #4fdcff;
+      }
+
+      .signin-top {
+        color: white;
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding: 0.5rem 1.1rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        transition: 0.3s;
+      }
+
+      .signin-top:hover {
+        border: 1px solid #00d9ff;
+        box-shadow:
+          0 0 0.6rem rgba(0, 217, 255, 0.8),
+          0 0 1.2rem rgba(0, 217, 255, 0.5);
+        color: #4fdcff;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .profile-section {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .profile-pic {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        object-fit: cover;
+        transition: all 0.3s;
+      }
+
+      .profile-pic:hover {
+        border-color: #4fdcff;
+        box-shadow: 0 0 0.6rem rgba(79, 220, 255, 0.6);
+      }
+
+      .profile-name {
+        color: #ffffff;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      .profile-menu {
+        display: none;
+        position: absolute;
+        top: 2.8rem;
+        right: 0;
+        background: rgba(15, 23, 42, 0.95);
+        border: 1px solid rgba(0, 188, 212, 0.3);
+        border-radius: 0.5rem;
+        min-width: 150px;
+        z-index: 1001;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      .profile-menu.active {
+        display: block;
+      }
+
+      .profile-menu a,
+      .profile-menu button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.6rem 1rem;
+        color: #cbd5e0;
+        text-decoration: none;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .profile-menu a:hover,
+      .profile-menu button:hover {
+        background: rgba(0, 188, 212, 0.15);
+        color: #4fdcff;
+      }
+
+      .profile-menu a:last-child,
+      .profile-menu button:last-child {
+        border-bottom: none;
+      }
+
+      .form-container {
+        max-width: 700px;
+        margin: auto;
+        background: rgba(20, 20, 20, 0.35);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow:
+          0 0 10px rgba(255, 255, 255, 0.15),
+          0 0 25px rgba(255, 255, 255, 0.08);
+      }
+
+      h1 {
+        margin-bottom: 25px;
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #b8c3db;
+        font-size: 14px;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #ffffff;
+        outline: none;
+        transition: 0.3s;
+        font-size: 14px;
+      }
+
+      input::placeholder,
+      textarea::placeholder {
+        color: #cccccc;
+      }
+
+      input:hover,
+      input:focus,
+      textarea:hover,
+      textarea:focus {
+        border-color: #00d9ff;
+        box-shadow:
+          0 0 8px rgba(0, 217, 255, 0.7),
+          0 0 15px rgba(0, 217, 255, 0.4);
+      }
+
+      textarea {
+        resize: vertical;
+        height: 120px;
+      }
+
+      #map {
+        height: 400px;
+        border-radius: 12px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+      }
+
+      button {
+        background: linear-gradient(135deg, #1fa8df 0%, #ffffff 100%);
+        color: #000000;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        transform: scale(1.02);
+        box-shadow:
+          0 0 1.5rem rgba(31, 168, 223, 0.8),
+          0 0 3rem rgba(31, 168, 223, 0.5);
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+
+      .toolbar button {
+        background: rgba(31, 168, 223, 0.8);
+        color: white;
+        padding: 10px 15px;
+        font-size: 14px;
+      }
+
+      .toolbar button:hover {
+        background: rgba(31, 168, 223, 1);
+        box-shadow: 0 0 0.8rem rgba(31, 168, 223, 0.6);
+      }
+
+      #editor {
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        min-height: 220px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #ffffff;
+        transition: 0.3s;
+      }
+
+      #editor:hover,
+      #editor:focus {
+        border-color: #00d9ff;
+        box-shadow:
+          0 0 8px rgba(0, 217, 255, 0.7),
+          0 0 15px rgba(0, 217, 255, 0.4);
+      }
+
+      .amenities-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .amenity-tag {
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: #cbd5e0;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.3s;
+      }
+
+      .amenity-tag:hover {
+        border-color: #4fdcff;
+        color: #4fdcff;
+      }
+
+      .amenity-tag.active {
+        background: rgba(0, 188, 212, 0.3);
+        border-color: #4fdcff;
+        color: #4fdcff;
+        box-shadow: 0 0 0.6rem rgba(79, 220, 255, 0.6);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="overlay">
+      <nav class="navbar">
+        <div class="left-nav">
+          <img src="../images/logo.png" alt="Logo" class="logo" />
+          <ul class="nav-links">
+            <li><a href="../homepage/homepage.html">Home</a></li>
+            <li><a href="../listings/listings.html">Listings</a></li>
+            <li><a href="admin-dashboard.html" class="active">Dashboard</a></li>
+          </ul>
+        </div>
+        <div id="navRightSection"></div>
+      </nav>
+
+      <div class="form-container">
+        <h1>Add Dorm Listing</h1>
+
+        <form
+          action="newListing.php"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <div class="form-group">
+            <label>Dorm Name</label>
+            <input type="text" name="dorm_name" required />
+          </div>
+
+          <div class="form-group">
+            <label>Dorm Description</label>
+
+            <div class="toolbar">
+              <button type="button" onclick="format('bold')">Bold</button>
+
+              <button type="button" onclick="format('italic')">Italic</button>
+
+              <button type="button" onclick="format('insertUnorderedList')">
+                Bullet List
+              </button>
+
+              <button type="button" onclick="format('insertOrderedList')">
+                Numbered List
+              </button>
+            </div>
+
+            <div id="editor" contenteditable="true"></div>
+
+            <input type="hidden" name="description" id="description" />
+          </div>
+
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" name="address" required />
+          </div>
+
+          <div class="form-group">
+            <label>Select Location</label>
+
+            <div id="map"></div>
+
+            <small> Click on the map to set the dorm location. </small>
+          </div>
+
+          <input type="hidden" name="latitude" id="latitude" />
+          <input type="hidden" name="longitude" id="longitude" />
+
+          <div class="form-group">
+            <label>Monthly Rent</label>
+            <input type="number" step="0.01" name="monthly_rent" required />
+          </div>
+
+          <div class="form-group">
+            <label>Available Rooms</label>
+            <input type="number" name="available_rooms" required />
+          </div>
+
+          <div class="form-group">
+            <label>Total Rooms</label>
+            <input type="number" name="total_rooms" required />
+          </div>
+
+          <div class="form-group">
+            <label>Room Capacity</label>
+            <input type="number" name="room_capacity" required />
+          </div>
+
+          <div class="form-group">
+            <label>Amenities</label>
+            <div class="amenities-container" id="amenitiesContainer">
+              <button type="button" class="amenity-tag" data-amenity="aircon">Aircon</button>
+              <button type="button" class="amenity-tag" data-amenity="parking">Parking</button>
+              <button type="button" class="amenity-tag" data-amenity="wifi">Wifi</button>
+              <button type="button" class="amenity-tag" data-amenity="electricity">Electricity</button>
+              <button type="button" class="amenity-tag" data-amenity="water">Water</button>
+              <button type="button" class="amenity-tag" data-amenity="kitchen">Kitchen</button>
+              <button type="button" class="amenity-tag" data-amenity="laundry">Laundry</button>
+              <button type="button" class="amenity-tag" data-amenity="maintenance">Maintenance</button>
+              <button type="button" class="amenity-tag" data-amenity="kubo">Kubo</button>
+            </div>
+            <input type="hidden" name="amenities" id="amenities" />
+          </div>
+
+          <div class="form-group">
+            <label>Upload Dorm Images</label>
+
+            <input
+              type="file"
+              name="dorm_images[]"
+              id="dorm_images"
+              multiple
+              accept=".jpg,.jpeg,.png,.webp"
+            />
+
+            <div class="preview-container" id="preview-container"></div>
+          </div>
+
+          <button type="submit">Add Dorm</button>
+        </form>
+      </div>
+    </div>
+    <script>
+      function format(command) {
+        document.execCommand(command, false, null);
+        document.getElementById("editor").focus();
+      }
+
+      const form = document.querySelector("form");
+      let selectedAmenities = [];
+
+      document.querySelectorAll('.amenity-tag').forEach(tag => {
+        tag.addEventListener('click', (e) => {
+          e.preventDefault();
+          tag.classList.toggle('active');
+          const amenity = tag.dataset.amenity;
+          
+          if (tag.classList.contains('active')) {
+            if (!selectedAmenities.includes(amenity)) {
+              selectedAmenities.push(amenity);
+            }
+          } else {
+            selectedAmenities = selectedAmenities.filter(a => a !== amenity);
+          }
+          
+          document.getElementById('amenities').value = JSON.stringify(selectedAmenities);
+        });
+      });
+
+      form.addEventListener("submit", () => {
+        document.getElementById("description").value =
+          document.getElementById("editor").innerHTML;
+        document.getElementById('amenities').value = JSON.stringify(selectedAmenities);
+      });
+
+      const map = L.map("map").setView([14.1966, 120.88229], 16);
+
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution:
+          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(map);
+
+      var selectionMarker;
+      map.on("click", function (e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        console.log("Selected coordinates: " + lat + ", " + lng);
+
+        document.getElementById("latitude").value = lat;
+        document.getElementById("longitude").value = lng;
+
+        if (selectionMarker) {
+          selectionMarker.setLatLng(e.latlng);
+        } else {
+          selectionMarker = L.marker(e.latlng).addTo(map);
+        }
+
+        selectionMarker
+          .bindPopup(
+            "<b>Selected Location:</b><br>" +
+              lat.toFixed(5) +
+              ", " +
+              lng.toFixed(5),
+          )
+          .openPopup();
+      });
+    </script>
+  </body>
+</html>
