@@ -422,7 +422,7 @@
       <div class="left-nav">
         <img src="../images/logo.png" alt="Logo" class="logo">
         <ul class="nav-links">
-          <li><a href="../homepage.html">Home</a></li>
+          <li><a href="../homepage/homepage.html">Home</a></li>
           <li><a href="../listings/listings.html">Listings</a></li>
           <li><a href="../listings/my-bookings.html">My Bookings</a></li>
         </ul>
@@ -507,7 +507,7 @@
           document.getElementById('firstName').value = user.first_name;
           document.getElementById('lastName').value = user.last_name;
           document.getElementById('email').value = user.email;
-          document.getElementById('profilePictureImg').src = user.profile_picture || './uploads/pfps/default-profile.jpg';
+          document.getElementById('profilePictureImg').src = user.profile_picture || '../uploads/pfps/default-profile.jpg';
           
           const roleText = user.role === 'dorm_owner' ? 'Dorm Owner' : 'Student';
           document.getElementById('roleBadge').textContent = roleText;

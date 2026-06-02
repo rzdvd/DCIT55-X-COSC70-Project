@@ -9,7 +9,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <script src="auth/auth.js"></script>
+    <script src="../auth/auth.js"></script>
     <style>
       * {
         margin: 0;
@@ -20,7 +20,7 @@
 
       body {
         min-height: 100vh;
-        background: url("./images/bg.png") no-repeat center center/cover;
+        background: url("../images/bg.png") no-repeat center center/cover;
         background-attachment: fixed;
       }
 
@@ -31,7 +31,6 @@
         padding: 1.25rem 3rem 3rem;
       }
 
-      /* ── Navbar ── */
       .navbar {
         display: flex;
         justify-content: space-between;
@@ -272,7 +271,6 @@
           0 0 3rem rgba(31, 168, 223, 0.5);
       }
 
-      /* ── Carousel + Listings row ── */
       .up {
         display: flex;
         justify-content: space-evenly;
@@ -342,7 +340,7 @@
         padding: 1.5rem;
         display: flex;
         flex-direction: column;
-        aspect-ratio: 16/10; /* Matches the image card size */
+        aspect-ratio: 16/10;
         max-height: 100%;
       }
 
@@ -401,7 +399,6 @@
         font-weight: bold;
       }
 
-      /* ── Dorm Grid ── */
       .dorms-section {
         padding: 2rem 0 0;
       }
@@ -471,7 +468,6 @@
         font-weight: bold;
       }
 
-      /* ── Responsive ── */
       @media (max-width: 768px) {
         .overlay {
           padding: 1rem 1rem 2rem;
@@ -527,10 +523,10 @@
       <!-- Navbar remains unchanged -->
       <nav class="navbar">
         <div class="left-nav">
-          <img src="images/logo.png" alt="Logo" class="logo" />
+          <img src="../images/logo.png" alt="Logo" class="logo" />
           <ul class="nav-links">
             <li><a href="homepage.html" class="active">Home</a></li>
-            <li><a href="listings/listings.html">Listings</a></li>
+            <li><a href="../listings/listings.html">Listings</a></li>
           </ul>
         </div>
         <div id="navRightSection"></div>
@@ -613,7 +609,7 @@
         dormGrid.innerHTML = '';
 
         dorms.forEach((dorm, index) => {
-          const imageUrl = dorm.image_url ? dorm.image_url : 'images/dorm1.webp'; 
+          const imageUrl = dorm.image_url ? dorm.image_url : '../images/dorm1.webp'; 
           const price = parseFloat(dorm.monthly_rent).toLocaleString();
 
           // 1. Populate Carousel (Now Clickable!)
@@ -623,7 +619,7 @@
           slide.innerHTML = `<img src="${imageUrl}" alt="${dorm.dorm_name}" />`;
           // Redirect when clicking the carousel image
           slide.addEventListener("click", () => {
-            window.location.href = `listings/listings.html?dorm_id=${dorm.dorm_id}`;
+            window.location.href = `../listings/listings.html?dorm_id=${dorm.dorm_id}`;
           });
           slidesWrapper.appendChild(slide);
 
@@ -645,7 +641,7 @@
           `;
           // Redirect when clicking the bottom grid items
           gridItem.addEventListener("click", () => {
-            window.location.href = `listings/listings.html?dorm_id=${dorm.dorm_id}`;
+            window.location.href = `../listings/listings.html?dorm_id=${dorm.dorm_id}`;
           });
           dormGrid.appendChild(gridItem);
         });

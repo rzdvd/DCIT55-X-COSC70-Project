@@ -774,7 +774,7 @@
         <div class="left-nav">
           <img src="../images/logo.png" alt="Logo" class="logo" />
           <ul class="nav-links">
-            <li><a href="../homepage.html">Home</a></li>
+            <li><a href="../homepage/homepage.html">Home</a></li>
             <li><a href="../listings/listings.html">Listings</a></li>
             <li><a href="admin-dashboard.html" class="active">Dashboard</a></li>
           </ul>
@@ -868,6 +868,13 @@
                 <span>Update Room Availability</span>
                 <span class="btn-icons">
                   <i class="fa-solid fa-calendar-check"></i>
+                </span>
+              </button>
+
+              <button class="action-btn" type="button" onclick="handleDeleteDorm()" style="border-color: rgba(255, 107, 107, 0.25); background: rgba(255, 107, 107, 0.05);">
+                <span style="color: #ff6b6b;">Remove Dorm Listing</span>
+                <span class="btn-icons" style="color: #ff6b6b;">
+                  <i class="fa-solid fa-trash-can"></i>
                 </span>
               </button>
 
@@ -1277,6 +1284,43 @@
           });
       }
 
+      function handleDeleteDorm() {
+        if (!allDorms.length) {
+          alert("No dorms available to delete.");
+          return;
+        }
+
+        const selector = document.getElementById('dormSelector');
+        const dorm = allDorms[selector.value];
+        const dormId = dorm.dorm_id;
+
+        // Ask for confirmation before destroying data
+        const confirmDelete = confirm(`Are you sure you want to permanently delete "${dorm.dorm_name}"?\n\nThis will also remove all associated bookings, favorites, and images. This action cannot be undone.`);
+        
+        if (!confirmDelete) return;
+
+        const formData = new FormData();
+        formData.append('action', 'delete_dorm');
+        formData.append('dorm_id', dormId);
+
+        fetch('admin-dashboard.php', { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              alert('Dorm removed successfully.');
+              // Reset selector to the first item since the current one is gone
+              localStorage.setItem('selectedDormIndex', '0');
+              loadDashboardData(); // Refresh the page data
+            } else {
+              alert('Error: ' + (data.error || 'Failed to delete dorm'));
+            }
+          })
+          .catch(err => {
+            console.error('Error:', err);
+            alert('Failed to delete dorm: ' + err.message);
+          });
+      }
+
       function loadDashboardData() {
         fetch('admin-dashboard.php?json=1')
           .then(res => {
@@ -1284,11 +1328,33 @@
             return res.json();
           })
           .then(data => {
+            // Handle the empty state (when 0 dorms exist)
             if (!data.success || !data.dorms || data.dorms.length === 0) {
+              allDorms = [];
+              currentApplicationData = { total: 0, approved: 0, pending: 0, bookings: [] };
+              
+              // Clear out all the UI text and numbers
               document.getElementById('primaryDormName').textContent = 'No dorms yet';
-              return;
+              document.getElementById('dormCount').textContent = '0';
+              document.getElementById('totalDormCount').textContent = '0';
+              document.getElementById('dormLocation').textContent = '-';
+              
+              document.getElementById('occupancyPercentage').textContent = '0%';
+              document.getElementById('bedCount').textContent = '0';
+              document.getElementById('totalBedCount').textContent = '0';
+              
+              document.getElementById('statTotalBeds').textContent = '0';
+              document.getElementById('statTotalRooms').textContent = '0';
+              document.getElementById('statAvailableBeds').textContent = '0';
+              document.getElementById('statAvailableRooms').textContent = '0';
+              
+              document.getElementById('dormSelector').innerHTML = '<option value="">No dorms available</option>';
+              
+              updateApplicationsDisplay();
+              return; // Stop here since there's no data to process
             }
 
+            // Normal load state (when dorms exist)
             allDorms = data.dorms;
             currentApplicationData = data.applications || {};
 
@@ -1303,11 +1369,15 @@
             });
 
             // Load previously selected dorm from localStorage, or default to first
-            const savedIndex = localStorage.getItem('selectedDormIndex') || '0';
+            // Make sure the saved index isn't out of bounds if a dorm was just deleted
+            let savedIndex = parseInt(localStorage.getItem('selectedDormIndex')) || 0;
+            if (savedIndex >= allDorms.length) {
+              savedIndex = 0;
+            }
             selector.value = savedIndex;
 
             // Display the selected dorm
-            displaySelectedDorm(parseInt(savedIndex), data.stats);
+            displaySelectedDorm(savedIndex, data.stats);
 
             // Update applications display
             updateApplicationsDisplay();

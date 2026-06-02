@@ -145,7 +145,7 @@ function updatePanel(dorm) {
   const bookButton = document.querySelector('.btn-primary.glow-effect');
   if (bookButton) {
     bookButton.onclick = function() {
-      window.location.href = `listings/booking.html?dorm_id=${dorm.dorm_id}`;
+      window.location.href = `booking.html?dorm_id=${dorm.dorm_id}`;
     };
   }
 }

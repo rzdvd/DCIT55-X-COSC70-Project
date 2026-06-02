@@ -111,21 +111,6 @@ foreach ($dorms as $dorm) {
 
 $occupancyPercentage = $totalBeds > 0 ? round((($totalBeds - $availableBeds) / $totalBeds) * 100) : 0;
 
-if (isset($_GET['json'])) {
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode([
-        'success' => true,
-        'dorms' => $dorms,
-        'stats' => [
-            'total_beds' => $totalBeds,
-            'total_rooms' => $totalRooms,
-            'available_beds' => $availableBeds,
-            'available_rooms' => $availableRooms,
-            'occupancy_percentage' => $occupancyPercentage
-        ]
-    ]);
-    exit;
-}
 
 // Fetch applications/bookings by status
 $appQuery = "
@@ -158,10 +143,21 @@ while ($row = $appResult->fetch_assoc()) {
 }
 $appStmt->close();
 
-// Count bookings by status (simplified - we'll consider all as pending for now)
+// Count bookings by actual status
 $totalApplications = count($bookings);
-$approvedApplications = 0; // Would need a status column to distinguish
-$pendingApplications = $totalApplications;
+$approvedApplications = 0;
+$pendingApplications = 0;
+$rejectedApplications = 0;
+
+foreach ($bookings as $booking) {
+    if ($booking['status'] === 'approved') {
+        $approvedApplications++;
+    } elseif ($booking['status'] === 'pending') {
+        $pendingApplications++;
+    } elseif ($booking['status'] === 'rejected') {
+        $rejectedApplications++;
+    }
+}
 
 if (isset($_GET['json'])) {
     header('Content-Type: application/json; charset=utf-8');
@@ -346,6 +342,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $updateStmt->close();
             echo json_encode(['success' => true, 'message' => 'Availability updated successfully']);
+        }
+        exit;
+    }
+
+    if ($action === 'delete_dorm') {
+        $dorm_id = (int)($_POST['dorm_id'] ?? 0);
+
+        if (!$dorm_id) {
+            echo json_encode(['success' => false, 'error' => 'Invalid dorm ID']);
+            exit;
+        }
+
+        // Verify ownership first
+        $verifyStmt = $conn->prepare('SELECT owner_id FROM dorms WHERE dorm_id = ?');
+        $verifyStmt->bind_param('i', $dorm_id);
+        $verifyStmt->execute();
+        $verifyResult = $verifyStmt->get_result();
+        $dormCheck = $verifyResult->fetch_assoc();
+        $verifyStmt->close();
+
+        if (!$dormCheck || $dormCheck['owner_id'] != $owner_id) {
+            echo json_encode(['success' => false, 'error' => 'Unauthorized or dorm not found']);
+            exit;
+        }
+
+        // Start a database transaction to safely remove all linked data first
+        $conn->begin_transaction();
+        try {
+            // Delete child records to prevent foreign key constraint failures
+            $conn->query("DELETE FROM dorm_amenities WHERE dorm_id = $dorm_id");
+            $conn->query("DELETE FROM dorm_images WHERE dorm_id = $dorm_id");
+            $conn->query("DELETE FROM favorites WHERE dorm_id = $dorm_id");
+            $conn->query("DELETE FROM bookings WHERE dorm_id = $dorm_id");
+            
+            // Delete the parent dorm
+            $conn->query("DELETE FROM dorms WHERE dorm_id = $dorm_id");
+            
+            $conn->commit();
+            echo json_encode(['success' => true, 'message' => 'Dorm deleted successfully']);
+        } catch (Exception $e) {
+            $conn->rollback();
+            error_log("Delete dorm error: " . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => 'Failed to delete dorm: ' . $e->getMessage()]);
         }
         exit;
     }
