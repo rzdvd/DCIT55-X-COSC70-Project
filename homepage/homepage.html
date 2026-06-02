@@ -609,7 +609,7 @@
         dormGrid.innerHTML = '';
 
         dorms.forEach((dorm, index) => {
-          const imageUrl = dorm.image_url ? dorm.image_url : '../images/dorm1.webp'; 
+          const imageUrl = dorm.image_url ? '../' + dorm.image_url : '../images/dorm1.webp';
           const price = parseFloat(dorm.monthly_rent).toLocaleString();
 
           // 1. Populate Carousel (Now Clickable!)
