@@ -304,6 +304,36 @@
           0 0 8px rgba(0, 217, 255, 0.7),
           0 0 15px rgba(0, 217, 255, 0.4);
       }
+
+      .amenities-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .amenity-tag {
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: #cbd5e0;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.3s;
+      }
+
+      .amenity-tag:hover {
+        border-color: #4fdcff;
+        color: #4fdcff;
+      }
+
+      .amenity-tag.active {
+        background: rgba(0, 188, 212, 0.3);
+        border-color: #4fdcff;
+        color: #4fdcff;
+        box-shadow: 0 0 0.6rem rgba(79, 220, 255, 0.6);
+      }
     </style>
   </head>
   <body>
@@ -392,6 +422,22 @@
           </div>
 
           <div class="form-group">
+            <label>Amenities</label>
+            <div class="amenities-container" id="amenitiesContainer">
+              <button type="button" class="amenity-tag" data-amenity="aircon">Aircon</button>
+              <button type="button" class="amenity-tag" data-amenity="parking">Parking</button>
+              <button type="button" class="amenity-tag" data-amenity="wifi">Wifi</button>
+              <button type="button" class="amenity-tag" data-amenity="electricity">Electricity</button>
+              <button type="button" class="amenity-tag" data-amenity="water">Water</button>
+              <button type="button" class="amenity-tag" data-amenity="kitchen">Kitchen</button>
+              <button type="button" class="amenity-tag" data-amenity="laundry">Laundry</button>
+              <button type="button" class="amenity-tag" data-amenity="maintenance">Maintenance</button>
+              <button type="button" class="amenity-tag" data-amenity="kubo">Kubo</button>
+            </div>
+            <input type="hidden" name="amenities" id="amenities" />
+          </div>
+
+          <div class="form-group">
             <label>Upload Dorm Images</label>
 
             <input
@@ -416,10 +462,30 @@
       }
 
       const form = document.querySelector("form");
+      let selectedAmenities = [];
+
+      document.querySelectorAll('.amenity-tag').forEach(tag => {
+        tag.addEventListener('click', (e) => {
+          e.preventDefault();
+          tag.classList.toggle('active');
+          const amenity = tag.dataset.amenity;
+          
+          if (tag.classList.contains('active')) {
+            if (!selectedAmenities.includes(amenity)) {
+              selectedAmenities.push(amenity);
+            }
+          } else {
+            selectedAmenities = selectedAmenities.filter(a => a !== amenity);
+          }
+          
+          document.getElementById('amenities').value = JSON.stringify(selectedAmenities);
+        });
+      });
 
       form.addEventListener("submit", () => {
         document.getElementById("description").value =
           document.getElementById("editor").innerHTML;
+        document.getElementById('amenities').value = JSON.stringify(selectedAmenities);
       });
 
       const map = L.map("map").setView([14.1966, 120.88229], 16);

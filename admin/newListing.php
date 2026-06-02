@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $available_rooms = $_POST['available_rooms'];
     $total_rooms = $_POST['total_rooms'];
     $room_capacity = $_POST['room_capacity'];
+    $amenities = isset($_POST['amenities']) ? json_decode($_POST['amenities'], true) : [];
 
     $query = "
     INSERT INTO dorms (
@@ -41,6 +42,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
      if ($stmt->execute()) {
         $dorm_id = $conn->insert_id;
+
+        if (!empty($amenities)) {
+          $amenityQuery = "SELECT amenity_id FROM amenities WHERE amenity_name = ?";
+          $amenityStmt = $conn->prepare($amenityQuery);
+          
+          foreach ($amenities as $amenityName) {
+            $amenityStmt->bind_param("s", $amenityName);
+            $amenityStmt->execute();
+            $amenityResult = $amenityStmt->get_result();
+            
+            if ($amenityRow = $amenityResult->fetch_assoc()) {
+              $amenityId = $amenityRow['amenity_id'];
+              $insertAmenityQuery = "INSERT INTO dorm_amenities (dorm_id, amenity_id) VALUES (?, ?)";
+              $insertAmenityStmt = $conn->prepare($insertAmenityQuery);
+              $insertAmenityStmt->bind_param("ii", $dorm_id, $amenityId);
+              $insertAmenityStmt->execute();
+            }
+          }
+        }
 
         $uploadDir = "uploads/dorm_../images/";
 
