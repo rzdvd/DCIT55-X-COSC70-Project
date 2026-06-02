@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadUserFavorites() {
   dormData.forEach(dorm => {
-    fetch(`listings/favorites.php?action=check&dorm_id=${dorm.dorm_id}`)
+    fetch(`favorites.php?action=check&dorm_id=${dorm.dorm_id}`)
       .then(res => res.json())
       .then(data => {
         if (data.is_favorite) {
