@@ -120,6 +120,13 @@ CREATE TABLE `dorm_images` (
 -- Dumping data for table `dorm_images`
 --
 
+INSERT INTO `dorm_images` (`image_id`, `dorm_id`, `image_url`) VALUES
+(1, 1, 'uploads/dorms/dorm1.webp'),
+(2, 2, 'uploads/dorms/dorm2.webp'),
+(3, 3, 'uploads/dorms/dorm3.webp'),
+(4, 4, 'uploads/dorms/dorm4.webp'),
+(5, 5, 'uploads/dorms/dorm5.webp');
+
 LOCK TABLES `dorm_images` WRITE;
 /*!40000 ALTER TABLE `dorm_images` DISABLE KEYS */;
 /*!40000 ALTER TABLE `dorm_images` ENABLE KEYS */;
